@@ -6,6 +6,7 @@
 <title>Lomba · Aliria</title>
 <meta name="description" content="Portal lomba Aliria — kelola lomba, tim, anggota tim, dan polling ide."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -23,233 +24,130 @@
   --green:#059669;--red:#dc2626;--gold:#ca8a04;
 }
 html,body{height:100%}
-body{
-  font-family:var(--font);background:var(--bg);color:var(--text);
-  display:flex;flex-direction:column;overflow:hidden;
-  transition:background .25s,color .25s;
-}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
 button{cursor:pointer;font-family:var(--font)}
 a{text-decoration:none;color:inherit}
+:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
 
-/* ══ Layar login: header + kartu besar (foto kiri, teks & form kanan) ══ */
-.login-screen{
-  position:relative;z-index:1;flex:1;min-height:0;overflow-y:auto;
-  display:flex;flex-direction:column;align-items:center;
-  padding:22px 24px 18px;
-}
-/* cahaya lembut di latar (pakai warna aksen yang sudah ada) */
-.login-screen::before,.login-screen::after{
-  content:"";position:fixed;z-index:-1;width:520px;height:520px;border-radius:50%;
-  filter:blur(110px);opacity:.16;pointer-events:none;
-}
-.login-screen::before{background:var(--accent);top:-180px;left:-140px}
-.login-screen::after{background:var(--accent2);bottom:-200px;right:-120px}
-.login-wrap{width:100%;max-width:1200px;display:flex;flex-direction:column;flex:1}
+/* ══ Login: foto layar penuh, judul besar di kiri, kartu kaca di kanan ══ */
+.login-screen{position:relative;flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:22px 32px 18px}
+.stage{position:fixed;inset:0;z-index:0;background:#0b0b12}
+.bg-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.06);transition:opacity 1.6s ease,transform 10s ease}
+.bg-slide.active{opacity:1;transform:scale(1)}
+.veil{position:absolute;inset:0;background:
+  linear-gradient(100deg,rgba(11,11,18,.94) 0%,rgba(11,11,18,.62) 50%,rgba(40,36,120,.5) 100%),
+  linear-gradient(0deg,rgba(11,11,18,.7) 0%,transparent 40%)}
+.login-wrap{position:relative;z-index:1;width:100%;max-width:1240px;display:flex;flex-direction:column;flex:1}
 
 /* header */
-.login-head{display:flex;align-items:center;justify-content:space-between;padding:6px 4px 22px}
-.login-brand{display:flex;align-items:center;gap:11px;font-size:.8rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.login-head{display:flex;align-items:center;justify-content:space-between;padding:4px 0 18px;color:#fff}
+.login-brand{display:flex;align-items:center;gap:12px;font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
 .login-brand-img{height:34px;width:auto;max-width:90px;object-fit:contain;display:block}
 .login-nav{display:flex;align-items:center;gap:10px}
-.login-nav-btn{
-  background:var(--accent);color:#fff;border:none;border-radius:10px;
-  padding:10px 20px;font-size:.74rem;font-weight:700;letter-spacing:.01em;
-  box-shadow:0 8px 20px rgba(108,111,245,.28);
-  transition:background .15s,transform .12s,box-shadow .15s;
-}
-.login-nav-btn:hover{background:var(--accent2);box-shadow:0 10px 26px rgba(108,111,245,.4)}
-.login-nav-btn:active{transform:translateY(1px)}
-.login-theme{
-  width:36px;height:36px;border-radius:10px;
-  border:1px solid var(--bd);background:var(--card);color:var(--muted);font-size:15px;
-  display:flex;align-items:center;justify-content:center;transition:all .15s;
-}
-.login-theme:hover{border-color:var(--accent);color:var(--accent);transform:rotate(12deg)}
+.login-theme{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .2s}
+.login-theme:hover{background:rgba(255,255,255,.18);transform:rotate(14deg)}
+.login-nav-btn{background:#fff;color:#15152a;border:none;border-radius:999px;padding:11px 24px;font-size:.8rem;font-weight:700;transition:transform .15s,background .15s}
+.login-nav-btn:hover{background:var(--accent2);color:#fff;transform:translateY(-1px)}
 
-/* kartu besar */
-.login-hero{
-  position:relative;flex:1;min-height:0;overflow:hidden;
-  display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px;
-  background:linear-gradient(145deg,var(--card) 0%,var(--surface) 100%);
-  border:1px solid var(--bd);border-radius:32px;
-  padding:56px 56px;
-  box-shadow:0 30px 80px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.04);
-  animation:rise .6s cubic-bezier(.2,.9,.3,1) both;
-}
-[data-theme="light"] .login-hero{box-shadow:0 30px 80px rgba(20,20,50,.16),inset 0 1px 0 rgba(255,255,255,.5)}
-.login-hero::before{
-  content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='112' height='194' viewBox='0 0 112 194'%3E%3Cg fill='none' stroke='%23888' stroke-opacity='.16' stroke-width='1.2'%3E%3Cpath d='M56 0l56 32v64l-56 32L0 96V32z' transform='translate(0 -32)'/%3E%3Cpath d='M56 97l56 32v64l-56 32L0 193v-64z' transform='translate(0 -32)'/%3E%3Cpath d='M0 65l56 32v64l-56 32' transform='translate(0 -32)'/%3E%3C/g%3E%3C/svg%3E");
-  -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 30%,#000 100%);
-  mask-image:linear-gradient(90deg,transparent 0%,transparent 30%,#000 100%);
-}
-@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/* isi */
+.login-hero{flex:1;min-height:min-content;display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:64px;padding:20px 0}
 
-/* kolom kiri */
-.login-left{position:relative;z-index:1;display:flex;flex-direction:column;gap:28px;align-items:flex-start;animation:fadeUp .6s .1s cubic-bezier(.2,.9,.3,1) both}
-.login-logo-pill{
-  display:inline-flex;align-items:center;gap:16px;
-  background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:12px 20px;
-  box-shadow:0 8px 22px rgba(0,0,0,.18);
-}
-.login-logo-pill{
-  display:flex;align-items:center;
-  width:200px;max-width:500px;      /* sejajar dengan lebar banner */
-  background:none;border:none;box-shadow:none;border-radius:0;padding:0;
-}
-.login-logo-pill .logo-img{
-  height:46px;width:100px;max-width:100%;object-fit:contain;display:block;
-}
-.login-photo{
-  position:relative;overflow:hidden;width:100%;max-width:500px;aspect-ratio:16/10;
-  border-radius:20px;border:1px solid var(--bd);background:var(--bg);
-  box-shadow:0 22px 50px rgba(0,0,0,.38),0 0 0 6px rgba(255,255,255,.03);
-  transition:transform .35s ease,box-shadow .35s ease;
-}
-.login-photo:hover{transform:translateY(-3px);box-shadow:0 28px 60px rgba(0,0,0,.42),0 0 0 6px rgba(255,255,255,.04)}
-.login-photo::after{
-  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.35) 100%);
-}
-.bg-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.04);transition:opacity 1.4s ease,transform 9s ease}
-.bg-slide.active{opacity:1;transform:scale(1)}
-.login-photo-badge{
-  position:absolute;left:14px;right:14px;bottom:14px;z-index:2;
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:11px 16px;
-  font-size:.7rem;font-weight:700;box-shadow:0 8px 22px rgba(0,0,0,.28);
-}
-.login-photo-badge .l{display:flex;align-items:center;gap:9px}
-.login-photo-badge .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55)}70%{box-shadow:0 0 0 8px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
-.login-photo-badge .r{color:var(--accent);font-weight:700;font-size:.66rem}
+/* kiri: judul besar */
+.login-left{display:flex;flex-direction:column;align-items:flex-start;gap:26px;color:#fff;animation:fadeUp .8s cubic-bezier(.2,.9,.3,1) both}
+.tag{display:inline-flex;align-items:center;gap:10px;padding:8px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:.76rem;font-weight:600}
+.tag .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.6)}70%{box-shadow:0 0 0 8px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.login-photo-title{font-size:clamp(2.8rem,6.4vw,5.6rem);font-weight:800;letter-spacing:-.05em;line-height:.96;text-transform:uppercase}
+.login-photo-title span{background:linear-gradient(90deg,#9ea1ff,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.login-lead{max-width:460px;font-size:1rem;line-height:1.7;color:rgba(255,255,255,.78)}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{padding:9px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);font-size:.8rem;font-weight:600;color:rgba(255,255,255,.9)}
 
-/* kolom kanan */
-.login-panel{
-  position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;text-align:right;
-  animation:fadeUp .6s .2s cubic-bezier(.2,.9,.3,1) both;
-}
-.login-photo-title{font-size:3.2rem;font-weight:800;letter-spacing:-.045em;line-height:1.04;text-transform:uppercase}
-.login-title{
-  font-size:1.8rem;font-weight:700;letter-spacing:-.02em;margin-top:12px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
-.login-sub{font-size:.82rem;color:var(--muted);margin:22px 0 26px;max-width:410px;line-height:1.7}
-.login-contact{
-  display:inline-flex;align-items:center;gap:12px;margin-bottom:14px;
-  background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 20px 10px 11px;
-  font-size:.84rem;font-weight:700;cursor:pointer;
-  box-shadow:0 6px 18px rgba(0,0,0,.16);
-  transition:border-color .15s,transform .15s,box-shadow .15s;
-}
-.login-contact:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.24)}
-.login-contact .ci{
-  width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:.9rem;
-}
-.login-contact .ci svg{width:17px;height:17px;display:block}
-.login-form{width:100%;max-width:320px;margin-top:10px;display:flex;flex-direction:column;align-items:stretch}
-.pw-wrap{position:relative;width:100%;margin-bottom:12px}
-.login-input{
-  width:100%;padding:14px 44px 14px 18px;border-radius:14px;border:1px solid var(--bd);
-  background:var(--card);color:var(--text);font-family:var(--mono);font-size:.95rem;
-  letter-spacing:.22em;outline:none;text-align:left;
-  box-shadow:inset 0 2px 6px rgba(0,0,0,.14);
-  transition:border-color .15s,box-shadow .2s,background .25s;
-}
-.login-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(108,111,245,.18)}
+/* kanan: kartu kaca */
+.login-panel{justify-self:end;width:100%;max-width:420px;display:flex;flex-direction:column;
+  padding:36px 34px 30px;border-radius:28px;
+  background:color-mix(in srgb,var(--surface) 80%,transparent);
+  -webkit-backdrop-filter:blur(22px) saturate(1.3);backdrop-filter:blur(22px) saturate(1.3);
+  border:1px solid color-mix(in srgb,var(--text) 14%,transparent);
+  box-shadow:0 40px 90px -20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.08);
+  animation:fadeUp .8s .12s cubic-bezier(.2,.9,.3,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.logo-group {display: flex;align-items: center;gap: 16px;margin-bottom: 22px;}
+.logo-img{height:75px;width:120px;max-width:50%;object-fit:contain;object-position:center;display:block;margin-bottom:0px}
+.login-title{font-size:1.7rem;font-weight:800;letter-spacing:-.03em;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content}
+.login-sub{font-size:.86rem;color:var(--muted);margin:10px 0 26px;line-height:1.7}
+.login-form{display:flex;flex-direction:column;align-items:stretch}
+.pw-wrap{position:relative;margin-bottom:12px}
+.login-input{width:100%;padding:15px 50px 15px 18px;border-radius:14px;border:1px solid var(--bd);background:color-mix(in srgb,var(--bg) 60%,var(--card));color:var(--text);font-family:var(--mono);font-size:1rem;letter-spacing:.24em;outline:none;transition:border-color .15s,box-shadow .2s}
+.login-input::placeholder{color:var(--dim)}
+.login-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
 .login-input.error{border-color:var(--red);animation:shake .32s ease}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-.pw-toggle{
-  position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  background:none;border:none;color:var(--muted);font-size:.85rem;padding:2px 4px;transition:color .15s;
-}
-.pw-toggle:hover{color:var(--text)}
-.login-btn{
-  width:100%;display:flex;align-items:center;justify-content:center;gap:12px;
-  padding:14px 18px;border-radius:14px;border:none;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:#fff;font-weight:700;font-size:.9rem;letter-spacing:.01em;
-  box-shadow:0 14px 30px rgba(108,111,245,.36);
-  transition:transform .15s,box-shadow .15s,filter .15s;
-}
-.login-btn:hover{transform:translateY(-2px);box-shadow:0 18px 38px rgba(108,111,245,.48);filter:brightness(1.05)}
+.pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:10px;background:none;border:none;color:var(--muted);font-size:.95rem;transition:color .15s,background .15s}
+.pw-toggle:hover{color:var(--text);background:color-mix(in srgb,var(--text) 8%,transparent)}
+.login-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:13px 18px;border-radius:14px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:700;font-size:.95rem;box-shadow:0 16px 32px -8px color-mix(in srgb,var(--accent) 55%,transparent),inset 0 1px 0 rgba(255,255,255,.22);transition:transform .15s,filter .15s}
+.login-btn:hover{transform:translateY(-2px);filter:brightness(1.07)}
 .login-btn:active{transform:translateY(1px)}
-.login-btn .bi{
-  width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,.2);
-  display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:transform .2s;
-}
+.login-btn .bi{width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:transform .2s}
 .login-btn:hover .bi{transform:translateX(3px)}
-.login-err{font-size:.72rem;color:var(--red);margin-top:10px;min-height:15px;text-align:right}
-.login-foot{text-align:center;font-size:.68rem;color:var(--muted);padding:18px 0 4px;letter-spacing:.02em}
+.login-err{font-size:.78rem;color:var(--red);margin-top:10px;min-height:16px}
+.login-contact{display:inline-flex;align-items:center;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid var(--bd);font-size:.84rem;font-weight:600;color:var(--muted);transition:color .15s}
+.login-contact:hover{color:var(--text)}
+.login-contact .ci{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.login-contact .ci svg{width:16px;height:16px;display:block}
+.login-foot{text-align:center;font-size:.72rem;color:rgba(255,255,255,.6);padding:14px 0 4px}
 
 /* ══ Layar aplikasi (Lomba) ══ */
 .app-screen{flex:1;display:none;flex-direction:column;min-height:0;position:relative;z-index:1}
 .app-screen.show{display:flex}
 #lombaFrame{flex:1;width:100%;border:0;min-height:0;background:var(--bg)}
 
-@media(max-width:860px){
-  .login-screen{padding:16px 14px 14px}
-  .login-hero{grid-template-columns:1fr;padding:30px 20px;gap:30px;border-radius:24px}
-  .login-left{align-items:center}
-  .login-photo{max-width:100%}
-  .login-panel{align-items:center;text-align:center}
-  .login-photo-title{font-size:2.1rem}
-  .login-title{font-size:1.35rem}
-  .login-err{text-align:center}
-  .login-form{max-width:100%}
+@media(max-width:900px){
+  .login-screen{padding:16px 16px 14px}
+  .login-hero{grid-template-columns:1fr;gap:32px}
+  .login-panel{justify-self:stretch;max-width:100%;padding:28px 22px 24px}
+  .login-left{gap:18px}
+  .login-lead{font-size:.92rem}
 }
-@media(max-width:600px){
-  .login-logo-pill .logo-img{height:36px}
-}
+@media(max-width:600px){.login-brand{font-size:.68rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
 <!-- ══ LAYAR LOGIN ══ -->
 <div class="login-screen" id="loginScreen">
-  <div class="login-wrap">
+  <div class="stage" id="bg">
+    <div class="bg-slide active" style="background-image:url('banner_1.png')"></div>
+    <div class="bg-slide" style="background-image:url('banner_2.jpg')"></div>
+    <div class="bg-slide" style="background-image:url('banner_3.jpg')"></div>
+    <div class="veil"></div>
+  </div>
 
+  <div class="login-wrap">
     <header class="login-head">
-      <div class="login-brand"><img class="login-brand-img" src="logo_header.png" alt="Logo"/>Aliria Tech Community</div>
+      <div class="login-brand"><img class="login-brand-img" src="/timlomba/logoAliriaaja.png" alt="Logo"/>Aliria Tech Community</div>
       <div class="login-nav">
-        <button class="login-theme" id="loginTheme" title="Ganti tema">🌙</button>
         <button class="login-nav-btn" onclick="document.getElementById('loginPass').focus()">Masuk</button>
       </div>
     </header>
 
     <section class="login-hero">
       <div class="login-left">
-        <div class="login-logo-pill">
-        <img class="logo-img" src="/timlomba/logo.png" alt="Logo"/>
-        </div>
-        <div class="login-photo" id="bg">
-          <div class="bg-slide active" style="background-image:url('banner_1.png')"></div>
-          <div class="bg-slide" style="background-image:url('banner_2.jpg')"></div>
-          <div class="bg-slide" style="background-image:url('banner_3.jpg')"></div>
-          <div class="login-photo-badge">
-            <span class="l"><span class="dot"></span>Portal Lomba Aktif</span>
-            <span class="r">Lomba · Tim · Polling</span>
-          </div>
-        </div>
+        <span class="tag"><span class="dot"></span>Portal Lomba Aktif</span>
+        <h1 class="login-photo-title">Aliria Tech<br/><span>Community</span></h1>
+        <p class="login-lead">Satu tempat untuk seluruh jejak kompetisi tim Aliria: lomba yang diikuti, tim yang terbentuk, dan ide yang dipilih bersama.</p>
+        <div class="chips"><span class="chip">Lomba</span><span class="chip">Tim</span><span class="chip">Polling ide</span></div>
       </div>
 
       <div class="login-panel" id="loginAbout">
-        <div class="login-photo-title">Aliria Tech<br/>Community</div>
+        <div class="logo-group">
+            <img class="logo-img" src="/timlomba/logoDinamika.png" alt="Logo Dinamika"/>
+            <div class="logo-separator">|</div>
+            <img class="logo-img" src="/timlomba/logoAliria.png" alt="Logo Aliria"/>
+        </div>
         <div class="login-title">Aliria Lomba</div>
-        <div class="login-sub">Kelola lomba, tim, anggota &amp; polling ide. Satu tempat untuk seluruh jejak kompetisi tim Aliria. Masukkan kode akses untuk melanjutkan.</div>
-
-        <a class="login-contact" href="https://instagram.com/aliriatechcommunity" target="_blank" rel="noopener" title="Instagram @aliriatechcommunity">
-          <span class="ci">
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
-              <rect x="2.6" y="2.6" width="18.8" height="18.8" rx="5.4"/>
-              <circle cx="12" cy="12" r="4.1"/>
-              <circle cx="17.4" cy="6.6" r="1.15" fill="currentColor" stroke="none"/>
-            </svg>
-          </span>@aliriatechcommunity
-        </a>
+        <div class="login-sub">Kelola lomba, tim, anggota &amp; polling ide. Masukkan kode akses untuk melanjutkan.</div>
 
         <div class="login-form">
           <div class="pw-wrap">
@@ -259,6 +157,16 @@ a{text-decoration:none;color:inherit}
           <button class="login-btn" id="loginBtn"><span class="bi">➜</span>Masuk ke Ruang Tim</button>
           <div class="login-err" id="loginErr"></div>
         </div>
+
+        <a class="login-contact" href="https://instagram.com/aliriatechcommunity" target="_blank" rel="noopener" title="Instagram @aliriatechcommunity">
+          <span class="ci">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+              <rect x="2.6" y="2.6" width="18.8" height="18.8" rx="5.4"/>
+              <circle cx="12" cy="12" r="4.1"/>
+              <circle cx="17.4" cy="6.6" r="1.15" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>@aliriatechcommunity
+        </a>
       </div>
     </section>
 
@@ -283,12 +191,20 @@ const LOMBA_URL    = 'lomba.html?embed=1';
 /* ══════════════════════════════════════════
    TEMA (sinkron dgn iframe & tab lain)
    ══════════════════════════════════════════ */
+function isLoginVisible(){
+  const l=document.getElementById('loginScreen');
+  return !l || l.style.display!=='none';
+}
 function applyTheme(){
   const html=document.documentElement;
-  let light=false;
-  try{ light=localStorage.getItem('theme')==='light'; }catch{}
-  if(light) html.setAttribute('data-theme','light'); else html.removeAttribute('data-theme');
   const b=document.getElementById('loginTheme');
+  /* halaman login → mode terang; halaman app → ikuti tema tersimpan */
+  const onLogin=isLoginVisible();
+  let light=onLogin;
+  if(!onLogin){
+    try{ light=localStorage.getItem('theme')==='light'; }catch{}
+  }
+  if(light) html.setAttribute('data-theme','light'); else html.removeAttribute('data-theme');
   if(b) b.textContent=light?'🌙':'☀️';
 }
 function toggleTheme(){
@@ -299,7 +215,8 @@ function toggleTheme(){
   applyTheme();
 }
 applyTheme();
-document.getElementById('loginTheme').addEventListener('click',toggleTheme);
+const themeBtn=document.getElementById('loginTheme');
+if(themeBtn) themeBtn.addEventListener('click',toggleTheme);
 /* ikut perubahan tema dari iframe / tab lain (origin sama) */
 window.addEventListener('storage',e=>{ if(e.key==='theme'||e.key===null) applyTheme(); });
 window.addEventListener('focus',applyTheme);
@@ -346,6 +263,7 @@ function enterApp(){
   appScreen.classList.add('show');
   if(!frame.getAttribute('src')) frame.setAttribute('src',LOMBA_URL);
   pushRoleToFrame();
+  applyTheme();
 }
 function doLogout(){
   setRole('');
@@ -353,6 +271,7 @@ function doLogout(){
   loginScreen.style.display='';
   passInp.value=''; errEl.textContent='';
   passInp.focus();
+  applyTheme();
 }
 function showError(msg){
   errEl.textContent=msg;

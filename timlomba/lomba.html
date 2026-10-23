@@ -1490,7 +1490,19 @@ function renderLomba(){
     return;
   }
 
-  list.forEach(l=>{
+  const ordered=[
+    ...list.filter(l=>l.tim&&l.tim.name).map(l=>({l,group:'terisi'})),
+    ...list.filter(l=>!(l.tim&&l.tim.name)).map(l=>({l,group:'kosong'}))
+  ];
+  let lastGroup=null;
+  ordered.forEach(({l,group})=>{
+    if(group!==lastGroup){
+      lastGroup=group;
+      const head=document.createElement('div');
+      head.style.cssText='font-size:.8rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px';
+      head.textContent=group==='terisi'?'🏆 Sudah Ada Tim':'🏆 Belum Ada Tim';
+      area.appendChild(head);
+    }
     const ideList=(l.ide||[]).filter(x=>!x.deleted);
     /* polling: urut dari suara tertinggi, lalu terbaru */
     const sortedIde=[...ideList].sort((a,b)=>((b.likes||0)-(a.likes||0))||((b.createdAt||0)-(a.createdAt||0)));
