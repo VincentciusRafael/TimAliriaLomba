@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Lomba · Alteco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0b12;--surface:#12121c;--card:#181825;--bd:#23233a;
+  --text:#e2e2f0;--muted:#9494b8;--dim:#5c5c7a;
+  --accent:#6c6ff5;--accent2:#a78bfa;
+  --green:#34d399;--red:#f87171;--gold:#fbbf24;--blue:#60a5fa;--teal:#2dd4bf;
+  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+[data-theme="light"]{
+  --bg:#f4f4f9;--surface:#eaeaef;--card:#dfdfec;--bd:#c5c5d4;
+  --text:#15152a;--muted:#6a6a88;--dim:#9090aa;
+  --accent:#5356d1;--accent2:#8b5cf6;
+  --green:#059669;--red:#dc2626;--gold:#ca8a04;--blue:#2563eb;--teal:#0d9488;
+}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;transition:background .25s,color .25s}
+input,button,select,textarea{font-family:var(--font)}
+button{cursor:pointer}
+a{text-decoration:none;color:inherit}
+
+/* ── Nav ── */
+.nav{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--bd);transition:background .25s,border-color .25s}
+.nav-back{font-size:.72rem;font-weight:600;color:var(--muted);padding:4px 12px;border:1px solid var(--bd);border-radius:5px;transition:color .15s,border-color .15s}
+.nav-back:hover{color:var(--accent);border-color:var(--accent)}
+.nav-title{font-size:.86rem;font-weight:700}
+/* Mode embed (dipakai di dalam iframe landing) — nav jadi navbar tunggal:
+   sembunyikan tombol "kembali", sisakan brand + kontrol */
+body.is-embed .nav-back{display:none}
+body.is-embed .nav{padding:7px 14px;gap:8px}
+body.is-embed .nav-title{display:inline-flex}
+#embedLogoutBtn{display:none}
+body.is-embed #embedLogoutBtn{display:flex}
+.nav-spacer{flex:1}
+.nav-role-badge{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid;letter-spacing:.05em;text-transform:uppercase}
+.nav-role-badge.admin{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35);color:var(--gold)}
+.nav-role-badge.viewer{background:rgba(148,148,184,.08);border-color:var(--bd);color:var(--dim)}
+.theme-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;font-size:14px;line-height:1}
+.theme-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ── Modal ── */
+.modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal.hidden{display:none}
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.65)}
+.modal-box{position:relative;background:var(--surface);border:1px solid var(--bd);border-radius:12px;width:100%;max-width:420px;max-height:90vh;display:flex;flex-direction:column;z-index:1;transition:background .25s}
+.modal-head{display:flex;align-items:center;padding:16px 20px 12px;border-bottom:1px solid var(--bd);transition:border-color .25s}
+.modal-title{font-size:.9rem;font-weight:800;flex:1}
+.modal-close{width:26px;height:26px;border-radius:5px;border:1px solid var(--bd);background:var(--card);color:var(--muted);font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-close:hover{background:var(--red);border-color:var(--red);color:#fff}
+.modal-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;flex:1;min-height:0}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.form-input,.form-select,.form-textarea{padding:8px 12px;border-radius:7px;border:1px solid var(--bd);background:var(--card);color:var(--text);font-size:.82rem;outline:none;transition:border-color .15s,background .25s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+.form-textarea{resize:vertical;min-height:60px;max-height:120px}
+.form-hint{font-size:.66rem;color:var(--dim);line-height:1.5}
+input[type="date"].form-input{color-scheme:dark}
+[data-theme="light"] input[type="date"].form-input{color-scheme:light}
+.form-select option{background:var(--card)}
+.modal-foot{flex-shrink:0;display:flex;gap:8px;padding:12px 20px 18px;justify-content:flex-end;border-top:1px solid var(--bd)}
+.btn-cancel{padding:8px 16px;border-radius:7px;border:1px solid var(--bd);background:transparent;color:var(--muted);font-size:.78rem;font-weight:600;transition:all .15s}
+.btn-cancel:hover{color:var(--text)}
+.btn-save{padding:8px 18px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:.78rem;font-weight:700;transition:background .15s}
+.btn-save:hover{background:var(--accent2)}
+
+/* ── Asset view / toolbar ── */
+.asset-view{flex:1;overflow-y:auto;padding:14px 18px}
+.asset-search{flex:1;min-width:120px;padding:5px 10px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--text);font-size:.76rem;outline:none;transition:border-color .15s}
+.asset-search:focus{border-color:var(--accent)}
+.asset-search::placeholder{color:var(--dim)}
+.asset-act-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--bd);background:transparent;color:var(--dim);font-size:.7rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}
+.asset-act-btn:hover{border-color:var(--accent);color:var(--accent)}
+.asset-act-btn.del:hover{border-color:var(--red);color:var(--red)}
+
+/* ── Notulensi card (dipakai untuk kartu lomba) ── */
+.notul-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.notul-toolbar-title{font-size:.82rem;font-weight:800;flex:1;color:var(--text)}
+.notul-topik{background:var(--card);border:1px solid var(--bd);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color .2s,background .2s}
+.notul-topik:hover{border-color:var(--accent)}
+.notul-topik-head{display:flex;align-items:center;gap:8px;padding:11px 14px;cursor:pointer;user-select:none;min-width:0}
+.notul-topik-icon{width:30px;height:30px;border-radius:7px;background:rgba(108,111,245,.12);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.notul-topik-info{flex:1;min-width:0}
+.notul-topik-title{font-size:.86rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notul-topik-meta{font-size:.62rem;color:var(--muted);margin-top:1px}
+.notul-topik-acts{display:flex;gap:3px;flex-shrink:0;opacity:0;transition:opacity .15s}
+.notul-topik-head:hover .notul-topik-acts{opacity:1}
+.notul-chevron{font-size:.6rem;color:var(--dim);flex-shrink:0;transition:transform .2s;display:inline-block;margin-left:2px}
+.notul-topik.open .notul-chevron{transform:rotate(180deg)}
+.notul-topik-body{display:none;border-top:1px solid var(--bd)}
+.notul-topik.open .notul-topik-body{display:block}
+.notul-topik-add-btn{display:flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;color:var(--accent);background:transparent;border:1px dashed rgba(108,111,245,.4);border-radius:6px;padding:5px 12px;cursor:pointer;margin:8px 14px 10px;transition:background .15s,border-color .15s;width:calc(100% - 28px)}
+.notul-topik-add-btn:hover{background:rgba(108,111,245,.08);border-color:var(--accent)}
+
+/* ── Lomba ide row ── */
+.lomba-ide-row{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-top:1px solid var(--bd)}
+.lomba-ide-acts{display:flex;gap:4px;flex-shrink:0;align-items:center;margin-top:1px}
+.lomba-vote-btn{display:flex;align-items:center;gap:3px;font-size:.72rem;padding:2px 8px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--dim);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.lomba-vote-btn:hover{border-color:var(--accent);color:var(--accent)}
+.lomba-vote-btn.active{background:rgba(108,111,245,.12);border-color:var(--accent);color:var(--accent);font-weight:700}
+.lomba-vote-btn.active-dis{background:rgba(239,68,68,.1);border-color:var(--red);color:var(--red);font-weight:700}
+
+/* ── Lomba: polling & author badge ── */
+.lomba-poll-total{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.64rem;color:var(--muted);padding:9px 14px 0}
+.lomba-poll-total b{color:var(--text);font-weight:700}
+.lomba-ide-main{flex:1;min-width:0}
+.lomba-ide-author{display:inline-flex;align-items:center;gap:4px;font-size:.58rem;font-weight:700;padding:1px 7px;border-radius:10px;border:1px solid var(--bd);background:var(--surface);color:var(--muted);margin-top:4px}
+.lomba-ide-author.team{border-color:rgba(108,111,245,.35);background:rgba(108,111,245,.1);color:var(--accent)}
+.lomba-ide-author.viewer{border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.1);color:var(--accent2)}
+.lomba-ide-author.top{border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.12);color:var(--gold)}
+.lomba-ide-author.official{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:var(--green)}
+.lomba-poll-bar{height:5px;max-width:240px;border-radius:99px;background:var(--surface);border:1px solid var(--bd);overflow:hidden;margin-top:6px}
+.lomba-poll-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s}
+.lomba-poll-meta{font-size:.6rem;color:var(--dim);margin-top:3px}
+
+/* ── Lomba: tim & anggota tim (per lomba, tidak shared) ── */
+.tim-table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:8px;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.tim-table th{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:7px 9px;background:var(--surface);border-bottom:1px solid var(--bd)}
+.tim-table td{border-top:1px solid var(--bd);padding:0}
+.tim-table .form-input,.tim-table .form-select{border:1px solid transparent;border-radius:0;background:transparent;padding:7px 9px;font-size:.78rem}
+.tim-table .form-input:focus,.tim-table .form-select:focus{border-color:var(--accent);background:var(--card)}
+.tim-table .form-select option{background:var(--card)}
+.tim-del-btn{width:22px;height:22px;border-radius:4px;border:1px solid transparent;background:transparent;color:var(--dim);cursor:pointer;font-size:.7rem;transition:all .15s}
+.tim-del-btn:hover{border-color:var(--red);color:var(--red)}
+.tim-add-row{width:100%;padding:8px;border:none;border-top:1px solid var(--bd);background:var(--surface);color:var(--accent);font-size:.72rem;font-weight:600;cursor:pointer;text-align:left;transition:background .15s}
+.tim-add-row:hover{background:rgba(108,111,245,.08)}
+.tim-hint{font-size:.66rem;color:var(--dim);line-height:1.5;margin-top:6px}
+.tim-drop{border-top:1px solid var(--bd)}
+.tim-drop-head{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;user-select:none;font-size:.74rem;color:var(--muted)}
+.tim-drop-head:hover{color:var(--text)}
+.tim-drop-head b{color:var(--text);font-weight:700}
+.tim-drop-head .asset-act-btn{opacity:1}
+.tim-drop.open .tim-drop-head .tim-drop-chev{transform:rotate(180deg)}
+.tim-drop-chev{font-size:.58rem;color:var(--dim);transition:transform .2s;display:inline-block;flex-shrink:0}
+.tim-drop-body{display:none;border-top:1px solid var(--bd);padding:10px 14px 12px}
+.tim-drop.open .tim-drop-body{display:block}
+.tim-members{width:100%;border-collapse:collapse;font-size:.72rem}
+.tim-members th{text-align:left;font-size:.58rem;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);font-weight:700;padding:4px 6px 6px 0;border-bottom:1px solid var(--bd)}
+.tim-members td{padding:6px 6px 6px 0;border-bottom:1px solid var(--bd);color:var(--text);vertical-align:top;word-break:break-word}
+.tim-members tr:last-child td{border-bottom:none}
+.tim-peran-badge{display:inline-block;font-size:.58rem;font-weight:700;padding:1px 7px;border-radius:10px;border:1px solid var(--bd);background:var(--surface);color:var(--muted)}
+.tim-peran-badge.ketua{border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.12);color:var(--gold)}
+.tim-empty{font-size:.7rem;color:var(--dim);padding:4px 0}
+
+/* ── Daftar tim master (modal Kelola Tim) ── */
+.ti-row{display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--bd);border-radius:8px;background:var(--card)}
+.ti-row+.ti-row{margin-top:6px}
+.ti-info{flex:1;min-width:0}
+.ti-name{font-size:.82rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ti-meta{font-size:.62rem;color:var(--muted);margin-top:1px}
+.ti-acts{display:flex;gap:4px;flex-shrink:0}
+
+/* ── Filter jenis lomba (pill) ── */
+.lomba-jenis-filter{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.lomba-jenis-pill{padding:4px 14px;border-radius:99px;font-size:.74rem;font-weight:600;cursor:pointer;border:none;background:var(--card);color:var(--dim);transition:background .15s,color .15s}
+.lomba-jenis-pill:hover{color:var(--text)}
+.lomba-jenis-pill.active{background:var(--accent);color:#fff}
+
+/* ── Toast ── */
+.toast{position:fixed;right:18px;bottom:18px;z-index:200;background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:10px 16px;font-size:.76rem;color:var(--text);box-shadow:0 6px 20px rgba(0,0,0,.3);opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.err{border-color:var(--red);color:var(--red)}
+
+/* ── Loading ── */
+.loading{position:fixed;inset:0;z-index:150;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;transition:opacity .3s}
+.loading.hide{opacity:0;pointer-events:none}
+.loading-txt{font-size:.75rem;color:var(--dim)}
+
+.page-foot{text-align:center;font-size:.64rem;color:var(--dim);padding:18px 0 6px}
+
+/* ── Gate: wajib kode akses ── */
+.gate{position:fixed;inset:0;z-index:120;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;transition:background .25s}
+.gate.hidden{display:none}
+.gate-box{background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:30px 28px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.gate-ico{font-size:1.7rem;margin-bottom:10px}
+.gate-title{font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+.gate-sub{font-size:.7rem;color:var(--muted);margin:5px 0 20px}
+.gate-wrap{position:relative;margin-bottom:10px}
+.gate-input{width:100%;padding:10px 38px 10px 14px;border-radius:7px;border:1px solid var(--bd);background:var(--card);color:var(--text);font-family:var(--mono);font-size:.92rem;letter-spacing:.2em;outline:none;transition:border-color .15s}
+.gate-input:focus{border-color:var(--accent)}
+.gate-input.error{border-color:var(--red);animation:shake .32s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.gate-eye{position:absolute;right:9px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:.8rem;padding:2px 4px;transition:color .15s}
+.gate-eye:hover{color:var(--text)}
+.gate-btn{width:100%;padding:10px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:.82rem;transition:background .15s}
+.gate-btn:hover{background:var(--accent2)}
+.gate-err{font-size:.68rem;color:var(--red);margin-top:8px;min-height:14px}
+
+@media(max-width:600px){
+  .nav{padding:8px 12px;gap:8px}
+  .nav-title{font-size:.8rem}
+  .asset-view{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-back">‹ Aliria</a>
+  <span class="nav-title">🏆 Lomba</span>
+  <span class="nav-spacer"></span>
+  <span id="roleBadge" class="nav-role-badge viewer">Viewer</span>
+  <button id="adminBtn" class="theme-btn" title="Mode admin">🔑</button>
+  <button id="themeBtn" class="theme-btn" title="Ganti tema">🌙</button>
+  <button id="embedLogoutBtn" class="theme-btn" title="Keluar">↩</button>
+</nav>
+
+<!-- Gate: wajib kode akses -->
+<div id="gate" class="gate hidden">
+  <div class="gate-box">
+    <div class="gate-ico">🏆</div>
+    <div class="gate-title">Aliria Lomba</div>
+    <div class="gate-sub">Masukkan kode akses untuk melanjutkan</div>
+    <div class="gate-wrap">
+      <input type="password" id="gateInput" class="gate-input" placeholder="••••••••" maxlength="20" autocomplete="off" inputmode="numeric"/>
+      <button class="gate-eye" id="gateEye" tabindex="-1" title="Lihat kode">👁</button>
+    </div>
+    <button class="gate-btn" id="gateBtn">Masuk</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<main class="asset-view" id="lombaArea"></main>
+
+<div class="page-foot" id="pageFoot"></div>
+
+<!-- Modal -->
+<div id="modal" class="modal hidden">
+  <div class="modal-overlay" id="modalOverlay"></div>
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title" id="modalTitle">—</span>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn-cancel" id="modalCancel">Batal</button>
+      <button class="btn-save" id="modalSave">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div id="loading" class="loading">
+  <div style="font-size:1.6rem">🏆</div>
+  <div class="loading-txt">Memuat data lomba…</div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════════ */
+const PASS_ADMIN   = '19950328';
+const PASS_VIEW    = '20251208';
+const LS_KEY       = 'alteco_lomba_page_v1';   /* cache lokal halaman ini */
+const VOTE_LS      = 'alteco_lomba_votes_v1';  /* SAMA dgn app todolist → 1 suara/perangkat berlaku di 2 halaman */
+const DEVICE_LS    = 'alteco_device_id';        /* SAMA dgn app todolist → penanda "ide milik saya" */
+const GIST_ID      = '6bf5ebb0397393324168d3dd14c018c8';
+const GIST_FILE    = 'alteco-data.json';
+const WORKER_URL   = 'https://alteco-writer.dionisiusn1.workers.dev';
+const ROLE_KEY     = 'rak_alteco_role';         /* SAMA dgn app todolist → login admin berlaku di 2 halaman */
+
+/* ══════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════ */
+let db          = {lombas:[],timLomba:[],jenisLomba:[]};
+let role        = 'viewer';
+let lombaSearch = '';
+let lombaJenisFilter = '';   /* '' = semua jenis, selain itu = nama jenis aktif */
+let openLombas  = new Set(); /* id lomba yang accordion-nya sedang terbuka */
+let openTim     = new Set(); /* id lomba yang dropdown anggota tim-nya sedang terbuka */
+let mMode       = null;
+let mCtx        = null;
+let timPick     = null;   /* state pemilih tim di modal: {mode,name,members[],orig} */
+let dirty       = false;
+let _saveTimer  = null;
+
+const DEVICE_ID = getDeviceId();
+
+/* ══════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════ */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function touch(item){ item.updatedAt=Date.now(); return item; }
+function isAdmin(){ return role==='admin'; }
+
+/* ── Tim & anggota tim ────────────────────────────────────────────
+   Setiap lomba punya SALINAN tim sendiri (tidak shared), jadi mengubah
+   anggota tim di satu lomba TIDAK memengaruhi lomba lain.
+   Bentuk data lama: l.tim = "Nama Tim" (string) → dinormalisasi jadi object. */
+function normTim(t){
+  if(t==null) return null;
+  if(typeof t==='string'){ const n=t.trim(); return n?{name:n,members:[]}:null; }
+  const name=String(t.name||'').trim();
+  const members=(Array.isArray(t.members)?t.members:[])
+    .filter(m=>m&&!m.deleted)
+    .map(m=>({
+      id:m.id||uid(),
+      name:String(m.name||'').trim(),
+      peran:m.peran==='ketua'?'ketua':'anggota',
+      nim:String(m.nim||'').trim()
+    }));
+  if(!name&&!members.length) return null;
+  return {name,members};
+}
+function timMembers(t){ return (t&&Array.isArray(t.members))?t.members:[]; }
+function normLombasTim(){ (db.lombas||[]).forEach(l=>{ if('tim' in l) l.tim=normTim(l.tim); }); }
+
+/* ── Daftar tim master (template) ────────────────────────────────
+   Tim master dibuat admin lewat tombol "👥 Kelola Tim".
+   Lomba yang memakai tim ini menyimpan SALINAN anggota, jadi mengubah
+   tim master TIDAK mengubah lomba yang sudah memakai tim tersebut. */
+function normTimLomba(t){
+  if(!t) return null;
+  const name=String(t.name||'').trim();
+  if(!name) return null;
+  const out={
+    id:t.id||uid(),
+    name,
+    members:timMembers(t).map(m=>({
+      id:m.id||uid(),
+      name:String(m.name||'').trim(),
+      peran:m.peran==='ketua'?'ketua':'anggota',
+      nim:String(m.nim||'').trim()
+    })),
+    createdAt:t.createdAt||0,
+    updatedAt:t.updatedAt||0
+  };
+  if(t.deleted) out.deleted=true;   /* soft delete harus tetap tersimpan */
+  return out;
+}
+function mergeTimLombaClient(a=[],b=[]){
+  const map=new Map();
+  for(const t of a) map.set(t.id,t);
+  for(const t of b){ const ex=map.get(t.id); if(!ex||(t.updatedAt||0)>=(ex.updatedAt||0)) map.set(t.id,t); }
+  const bIds=new Set(b.map(x=>x.id));
+  return [...b.map(x=>map.get(x.id)).filter(Boolean),...[...map.values()].filter(x=>!bIds.has(x.id))];
+}
+
+/* ── Daftar jenis master's ── */
+function normJenis(j){
+  if(!j) return null;
+  const name=String(j.name||'').trim();
+  if(!name) return null;
+  const out={id:j.id||uid(),name,createdAt:j.createdAt||0,updatedAt:j.updatedAt||0};
+  if(j.deleted) out.deleted=true;
+  return out;
+}
+function mergeArrClient(a=[],b=[]){
+  const map=new Map();
+  for(const x of a) map.set(x.id,x);
+  for(const x of b){ const ex=map.get(x.id); if(!ex||(x.updatedAt||0)>=(ex.updatedAt||0)) map.set(x.id,x); }
+  const bIds=new Set(b.map(x=>x.id));
+  return [...b.map(x=>map.get(x.id)).filter(Boolean),...[...map.values()].filter(x=>!bIds.has(x.id))];
+}
+
+function getDeviceId(){
+  let d=null;
+  try{ d=localStorage.getItem(DEVICE_LS); }catch{}
+  if(!d){
+    d='dev_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+    try{ localStorage.setItem(DEVICE_LS,d); }catch{}
+  }
+  return d;
+}
+
+/* ── Voting (1 suara per lomba per perangkat) ── */
+function getLombaVotes(){ try{ return JSON.parse(localStorage.getItem(VOTE_LS)||'{}'); }catch{ return {}; } }
+function getLombaVoteForLomba(lombaId){ return getLombaVotes()[lombaId]||null; }
+function setLombaVoteForLomba(lombaId,ideId,vote){
+  const m=getLombaVotes();
+  if(!vote) delete m[lombaId]; else m[lombaId]={ideId,vote};
+  try{ localStorage.setItem(VOTE_LS,JSON.stringify(m)); }catch{}
+}
+
+/* ── Toast ── */
+let _toastTimer=null;
+function toast(msg,isErr){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show'+(isErr?' err':'');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>{t.className='toast';},2600);
+}
+
+/* ══════════════════════════════════════════
+   DATA (Gist + cache lokal)
+   ══════════════════════════════════════════ */
+function mergeLombaIdeClient(a=[],b=[]){
+  const map=new Map();
+  for(const t of a) map.set(t.id,t);
+  for(const t of b){const ex=map.get(t.id);if(!ex||(t.updatedAt||0)>=(ex.updatedAt||0))map.set(t.id,t);}
+  return [...map.values()];
+}
+function mergeLombasClient(a=[],b=[]){
+  const aMap=new Map(a.map(l=>[l.id,l]));
+  const bMap=new Map(b.map(l=>[l.id,l]));
+  const bIds=new Set(b.map(x=>x.id));
+  const all=new Set([...aMap.keys(),...bMap.keys()]);
+  const merged=[...all].map(id=>{
+    const ai=aMap.get(id),bi=bMap.get(id);
+    if(!ai) return bi; if(!bi) return ai;
+    const newer=(bi.updatedAt||0)>=(ai.updatedAt||0)?bi:ai;
+    return {...ai,...newer,ide:mergeLombaIdeClient(ai.ide||[],bi.ide||[])};
+  });
+  return [...b.map(x=>merged.find(m=>m.id===x.id)).filter(Boolean),...merged.filter(x=>!bIds.has(x.id))];
+}
+function localLoad(){
+  try{
+    const d=JSON.parse(localStorage.getItem(LS_KEY));
+    if(d&&Array.isArray(d.lombas)) return d;
+  }catch{}
+  return null;
+}
+async function gistLoad(){
+  const r=await fetch(`https://api.github.com/gists/${GIST_ID}`,{cache:'no-store',headers:{'Accept':'application/vnd.github+json'}});
+  if(!r.ok) throw new Error('gist fetch '+r.status);
+  const gist=await r.json();
+  const content=gist.files[GIST_FILE]?.content;
+  if(!content) return null;
+  return JSON.parse(content);
+}
+async function loadDb(){
+  const local=localLoad();
+  try{
+    const remote=await gistLoad();
+    if(remote&&local) db={...remote, lombas:mergeLombasClient(remote.lombas||[],local.lombas||[]), timLomba:mergeTimLombaClient(remote.timLomba||[],local.timLomba||[]), jenisLomba:mergeArrClient(remote.jenisLomba||[],local.jenisLomba||[])};
+    else db=remote||local||{lombas:[],timLomba:[],jenisLomba:[]};
+  }catch(e){
+    console.warn('Gist load failed, pakai cache lokal',e);
+    db=local||{lombas:[],timLomba:[],jenisLomba:[]};
+  }
+  if(!Array.isArray(db.lombas)) db.lombas=[];
+  if(!Array.isArray(db.timLomba)) db.timLomba=[];
+  if(!Array.isArray(db.jenisLomba)) db.jenisLomba=[];
+  db.timLomba=db.timLomba.map(normTimLomba).filter(Boolean);
+  db.jenisLomba=db.jenisLomba.map(normJenis).filter(Boolean);
+  normLombasTim();
+  try{ localStorage.setItem(LS_KEY,JSON.stringify(db)); }catch{}
+}
+
+/* ── Simpan: re-fetch + merge dulu supaya tidak menimpa data app lain ── */
+function save(){
+  try{ localStorage.setItem(LS_KEY,JSON.stringify(db)); }catch{}
+  dirty=true;
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>doSave(),300);
+}
+async function doSave(){
+  try{
+    let remote=null;
+    try{ remote=await gistLoad(); }catch{}
+    if(remote){
+      db={...remote, lombas:mergeLombasClient(remote.lombas||[],db.lombas||[]), timLomba:mergeTimLombaClient(remote.timLomba||[],db.timLomba||[]), jenisLomba:mergeArrClient(remote.jenisLomba||[],db.jenisLomba||[])};
+      if(!Array.isArray(db.lombas)) db.lombas=[];
+      if(!Array.isArray(db.timLomba)) db.timLomba=[];
+      if(!Array.isArray(db.jenisLomba)) db.jenisLomba=[];
+      db.timLomba=db.timLomba.map(normTimLomba).filter(Boolean);
+      db.jenisLomba=db.jenisLomba.map(normJenis).filter(Boolean);
+      normLombasTim();
+      try{ localStorage.setItem(LS_KEY,JSON.stringify(db)); }catch{}
+    }
+    const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(db)});
+    if(!r.ok) throw new Error('worker '+r.status);
+    dirty=false;
+  }catch(e){
+    console.warn('Save failed',e);
+    toast('Gagal menyimpan — cek koneksi',true);
+  }
+}
+window.addEventListener('beforeunload',()=>{
+  if(!dirty||!WORKER_URL) return;
+  try{ navigator.sendBeacon(WORKER_URL,new Blob([JSON.stringify(db)],{type:'application/json'})); }catch{}
+});
+
+/* ══════════════════════════════════════════
+   ROLE / TEMA
+   ══════════════════════════════════════════ */
+function applyRole(){
+  const badge=document.getElementById('roleBadge');
+  if(isAdmin()){ badge.textContent='Superadmin'; badge.className='nav-role-badge admin'; }
+  else { badge.textContent='Viewer'; badge.className='nav-role-badge viewer'; }
+  const btn=document.getElementById('adminBtn');
+  btn.textContent=isAdmin()?'🚪':'🔑';
+  btn.title=isAdmin()?'Keluar dari mode superadmin':'Masuk sebagai superadmin';
+}
+function setRole(r){
+  role=r;
+  try{
+    if(r==='admin') sessionStorage.setItem(ROLE_KEY,'admin');
+    else sessionStorage.removeItem(ROLE_KEY);
+  }catch{}
+  applyRole();
+  render();
+  /* kabari parent (landing) supaya badge & link Manajemen ikut berubah */
+  try{ if(window.parent&&window.parent!==window) window.parent.postMessage({type:'alteco-role',role:r},location.origin); }catch{}
+}
+/* Role dikirim oleh landing (iframe) — terapkan tanpa mengubah sessionStorage */
+function applyRoleFromParent(r){
+  const next=(r==='admin')?'admin':'viewer';
+  try{ hideGate(); }catch{}
+  if(role===next) return;
+  role=next;
+  applyRole();
+  render();
+}
+window.addEventListener('message',e=>{
+  const d=(e&&e.data)||{};
+  if(d.type!=='alteco-role') return;
+  /* hanya dari origin yang sama (postMessage sudah membatasi targetOrigin) */
+  if(e.origin && e.origin!=='null' && e.origin!==location.origin) return;
+  applyRoleFromParent(d.role);
+});
+/* fallback: role di sessionStorage diubah parent (event storage lintas frame) */
+window.addEventListener('storage',e=>{
+  if(e.key!==ROLE_KEY && e.key!==null) return;
+  const r=getStoredRole();
+  if(r) applyRoleFromParent(r);
+});
+function applyTheme(){
+  const html=document.documentElement;
+  let light=false;
+  try{ light=localStorage.getItem('theme')==='light'; }catch{}
+  if(light) html.setAttribute('data-theme','light'); else html.removeAttribute('data-theme');
+  const b=document.getElementById('themeBtn');
+  if(b) b.textContent=light?'🌙':'☀️';
+}
+function toggleTheme(){
+  const html=document.documentElement;
+  const isLight=html.getAttribute('data-theme')==='light';
+  if(isLight){ html.removeAttribute('data-theme'); try{localStorage.setItem('theme','dark');}catch{} }
+  else { html.setAttribute('data-theme','light'); try{localStorage.setItem('theme','light');}catch{} }
+  applyTheme();
+}
+(function initTheme(){
+  applyTheme();
+  document.getElementById('themeBtn').addEventListener('click',toggleTheme);
+  /* sinkron tema dengan landing (iframe) & tab lain — origin sama */
+  window.addEventListener('storage',e=>{ if(e.key==='theme'||e.key===null) applyTheme(); });
+  window.addEventListener('focus',applyTheme);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) applyTheme(); });
+})();
+
+/* Mode embed: dipakai di dalam iframe landing (lomba.html?embed=1) */
+if(/[?&]embed=1(&|$)/.test(location.search)) document.body.classList.add('is-embed');
+
+document.getElementById('adminBtn').addEventListener('click',()=>{
+  if(isAdmin()){ setRole('viewer'); toast('Keluar dari mode superadmin'); return; }
+  openModal('admin-login',{});
+});
+
+/* Mode embed: tombol keluar → kabari landing (parent) */
+document.getElementById('embedLogoutBtn').addEventListener('click',()=>{
+  try{ if(window.parent&&window.parent!==window) window.parent.postMessage({type:'alteco-logout'},location.origin); }catch{}
+});
+
+/* ══════════════════════════════════════════
+   MODAL
+   ══════════════════════════════════════════ */
+function openModal(mode,ctx){
+  mMode=mode; mCtx=ctx||{};
+  timPick=null;
+  const modal=document.getElementById('modal');
+  const title=document.getElementById('modalTitle');
+  const body=document.getElementById('modalBody');
+  document.getElementById('modalSave').style.display='';
+  modal.classList.remove('hidden');
+
+  if(mode==='admin-login'){
+    title.textContent='Mode Superadmin';
+    const saveBtn=document.getElementById('modalSave');
+    saveBtn.style.display=''; saveBtn.textContent='Masuk';
+    body.innerHTML=`
+      <div class="form-group">
+        <label class="form-label">Kode Superadmin</label>
+        <input class="form-input" id="fi-admin-pass" type="password" placeholder="Masukkan kode superadmin" autocomplete="off"/>
+        <div class="form-hint">Kode superadmin sama dengan yang dipakai di halaman Manajemen Aliria.</div>
+      </div>
+    `;
+    const passInp=document.getElementById('fi-admin-pass');
+    passInp.focus();
+    passInp.addEventListener('keydown',e=>{ if(e.key==='Enter') saveBtn.click(); });
+  }
+
+  else if(mode==='lomba-add'||mode==='lomba-edit'){
+    const l=mode==='lomba-edit'?(db.lombas||[]).find(x=>x.id===ctx.id):null;
+    title.textContent=mode==='lomba-add'?'Tambah Lomba':'Edit Lomba';
+    body.innerHTML=`
+      <div class="form-group">
+        <label class="form-label">Nama Lomba *</label>
+        <input class="form-input" id="fi-lomba-nama" type="text" value="${esc(l?.nama||'')}" placeholder="Contoh: Hackathon Nasional 2026" maxlength="150"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jenis Lomba <span style="font-size:.65rem;color:var(--dim);font-weight:400">(opsional)</span></label>
+        <div id="fi-jenis-wrap"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tim <span style="font-size:.65rem;color:var(--dim);font-weight:400">(opsional)</span></label>
+        <div id="fi-tim-wrap"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Periode Registrasi <span style="font-size:.65rem;color:var(--dim);font-weight:400">(opsional)</span></label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="form-input" id="fi-lomba-reg-start" type="date" value="${esc(l?.regStart||'')}" style="flex:1"/>
+          <span style="font-size:.75rem;color:var(--dim)">s/d</span>
+          <input class="form-input" id="fi-lomba-reg-end" type="date" value="${esc(l?.regEnd||'')}" style="flex:1"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tim Mendaftar <span style="font-size:.65rem;color:var(--dim);font-weight:400">(opsional)</span></label>
+        <input class="form-input" id="fi-lomba-daftar" type="date" value="${esc(l?.tanggalDaftar||'')}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL Lomba <span style="font-size:.65rem;color:var(--dim);font-weight:400">(opsional)</span></label>
+        <input class="form-input" id="fi-lomba-url" type="url" value="${esc(l?.url||'')}" placeholder="https://lomba.example.com"/>
+      </div>
+    `;
+    setupJenisPicker(l);
+    setupTimPicker(l);
+    document.getElementById('fi-lomba-nama').focus();
+  }
+
+  else if(mode==='lomba-ide-add'||mode==='lomba-ide-edit'){
+    const l=(db.lombas||[]).find(x=>x.id===ctx.lombaId);
+    const ide=mode==='lomba-ide-edit'?(l?.ide||[]).find(x=>x.id===ctx.id):null;
+    const byViewer=ctx.authorRole==='viewer';
+    title.textContent=mode==='lomba-ide-add'
+      ? (byViewer?`Ajukan Ide${l?' — '+l.nama:''}`:`Tambah Ide${l?' — '+l.nama:''}`)
+      : 'Edit Ide';
+    body.innerHTML=`
+      <div class="form-group">
+        <label class="form-label">Judul Ide *</label>
+        <input class="form-input" id="fi-ide-judul" type="text" value="${esc(ide?.judul||'')}" placeholder="Nama / judul ide yang dilombakan" maxlength="200"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Deskripsi <span style="font-size:.65rem;color:var(--dim);font-weight:400">(opsional)</span></label>
+        <textarea class="form-textarea" id="fi-ide-desc" rows="4" placeholder="Penjelasan singkat tentang ide ini…">${esc(ide?.desc||'')}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nama / NIM <span style="font-size:.65rem;color:var(--dim);font-weight:400">(opsional — ditampilkan publik)</span></label>
+        <input class="form-input" id="fi-ide-author" type="text" value="${esc(ide?.author||'')}" placeholder="${byViewer?'Nama kamu (kosongkan bila anonim)':'Contoh: Tim Alteco'}" maxlength="60"/>
+      </div>
+    `;
+    document.getElementById('fi-ide-judul').focus();
+  }
+
+  /* ── Kelola daftar tim master ── */
+  else if(mode==='tim-list'){
+    title.textContent='Kelola Tim';
+    document.getElementById('modalSave').style.display='none';
+    document.getElementById('modalCancel').textContent='Tutup';
+    body.innerHTML=`
+      <button type="button" class="notul-topik-add-btn" id="ti-tambah" style="margin:0;width:100%">＋ Tambah Tim</button>
+      <div id="ti-list"></div>
+    `;
+    document.getElementById('ti-tambah').addEventListener('click',()=>openModal('tim-add',{}));
+    renderTimList();
+  }
+
+  else if(mode==='tim-add'||mode==='tim-edit'){
+    const t=mode==='tim-edit'?(db.timLomba||[]).find(x=>x.id===ctx.id):null;
+    title.textContent=mode==='tim-add'?'Tambah Tim':'Edit Tim';
+    document.getElementById('modalCancel').textContent='← Daftar Tim';
+    body.innerHTML=`
+      <div class="form-group">
+        <label class="form-label">Nama Tim *</label>
+        <input class="form-input" id="fi-tim-name" type="text" value="${esc(t?.name||'')}" placeholder="Contoh: Tim A" maxlength="100"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Anggota Tim</label>
+        <table class="tim-table">
+          <colgroup><col style="width:40%"/><col style="width:24%"/><col style="width:24%"/><col style="width:12%"/></colgroup>
+          <thead><tr><th>Nama Anggota</th><th>Peran</th><th>NIM / ID</th><th></th></tr></thead>
+          <tbody id="fi-tim-rows"></tbody>
+        </table>
+        <button type="button" class="tim-add-row" id="fi-tim-add">＋ Tambah Baris</button>
+        <div class="tim-hint" id="fi-tim-hint"></div>
+      </div>
+    `;
+    timPick={mode:'master-edit',name:t?t.name:'',members:cloneTimMembers(timMembers(t)),orig:t};
+    document.getElementById('fi-tim-name').addEventListener('input',e=>{ if(timPick) timPick.name=e.target.value; });
+    document.getElementById('fi-tim-add').addEventListener('click',()=>{
+      if(!timPick) return;
+      timPick.members.push({id:uid(),name:'',peran:'anggota',nim:''});
+      renderTimRows();
+      const inputs=document.querySelectorAll('#fi-tim-rows input[data-f="name"]');
+      const last=inputs[inputs.length-1];
+      if(last) last.focus();
+    });
+    renderTimRows();
+    document.getElementById('fi-tim-name').focus();
+  }
+
+  /* ── Kelola daftar jenis master's ── */
+  else if(mode==='jenis-list'){
+    title.textContent='Kelola Jenis';
+    document.getElementById('modalSave').style.display='none';
+    document.getElementById('modalCancel').textContent='Tutup';
+    body.innerHTML=`
+      <button type="button" class="notul-topik-add-btn" id="jn-tambah" style="margin:0;width:100%">＋ Tambah Jenis</button>
+      <div id="jn-list"></div>
+    `;
+    document.getElementById('jn-tambah').addEventListener('click',()=>openModal('jenis-add',{}));
+    renderJenisList();
+  }
+
+  else if(mode==='jenis-add'||mode==='jenis-edit'){
+    const j=mode==='jenis-edit'?(db.jenisLomba||[]).find(x=>x.id===ctx.id):null;
+    title.textContent=mode==='jenis-add'?'Tambah Jenis':'Edit Jenis';
+    document.getElementById('modalCancel').textContent='← Daftar Jenis';
+    body.innerHTML=`
+      <div class="form-group">
+        <label class="form-label">Nama Jenis *</label>
+        <input class="form-input" id="fi-jenis-nama" type="text" value="${esc(j?.name||'')}" placeholder="Contoh: Hackathon" maxlength="60"/>
+      </div>
+    `;
+    document.getElementById('fi-jenis-nama').focus();
+  }
+}
+
+/* ── Dropdown jenis lomba (modal Tambah/Edit Lomba) ── */
+function setupJenisPicker(lomba){
+  const wrap=document.getElementById('fi-jenis-wrap');
+  if(!wrap) return;
+  const masters=(db.jenisLomba||[]).filter(j=>!j.deleted&&j.name);
+  const cur=lomba?.jenis||null;
+  const curMaster=(cur&&masters.some(m=>m.id===lomba?.jenisId))?null:cur;
+
+  const opts=[`<option value="">— Tanpa Jenis —</option>`];
+  if(curMaster) opts.push(`<option value="__current__">Jenis saat ini: ${esc(curMaster)}</option>`);
+  masters.forEach(m=>opts.push(`<option value="${m.id}">${esc(m.name)}</option>`));
+
+  wrap.innerHTML=`
+    <select class="form-select" id="fi-lomba-jenis"${masters.length?'':' disabled'}>${opts.join('')}</select>
+    ${masters.length?'':`<div class="tim-hint">Belum ada jenis. Buat dulu lewat tombol "🏷 Kelola Jenis" di toolbar.</div>`}`;
+
+  const sel=document.getElementById('fi-lomba-jenis');
+  if(curMaster) sel.value='__current__';
+  else if(cur) sel.value=lomba.jenisId;
+}
+
+/* ── Daftar jenis master (modal "Kelola Jenis") ── */
+function renderJenisList(){
+  const box=document.getElementById('jn-list');
+  if(!box) return;
+  const list=(db.jenisLomba||[]).filter(j=>!j.deleted&&j.name);
+  if(!list.length){
+    box.innerHTML=`<div style="padding:22px;text-align:center;color:var(--dim);font-size:.76rem">Belum ada jenis.</div>`;
+    return;
+  }
+  box.innerHTML=list.map(j=>{
+    const used=(db.lombas||[]).filter(l=>!l.deleted&&l.jenis===j.name).length;
+    return `
+    <div class="ti-row">
+      <div class="ti-info">
+        <div class="ti-name">🏷 ${esc(j.name)}</div>
+        <div class="ti-meta">${used?`${used} lomba`:'belum dipakai'}</div>
+      </div>
+      <div class="ti-acts">
+        <button class="asset-act-btn" data-jn-edit="${j.id}" title="Edit jenis">✎</button>
+        <button class="asset-act-btn del" data-jn-del="${j.id}" title="Hapus jenis">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  box.querySelectorAll('[data-jn-edit]').forEach(b=>b.addEventListener('click',()=>openModal('jenis-edit',{id:b.dataset.jnEdit})));
+  box.querySelectorAll('[data-jn-del]').forEach(b=>b.addEventListener('click',()=>{
+    const j=(db.jenisLomba||[]).find(x=>x.id===b.dataset.jnDel);
+    if(!j) return;
+    const used=(db.lombas||[]).filter(l=>!l.deleted&&l.jenis===j.name).length;
+    const msg=used
+      ? `Hapus jenis "${j.name}"?\n\n${used} lomba memakai jenis ini. Nama jenis di lomba tersebut tetap tersimpan.`
+      : `Hapus jenis "${j.name}"?`;
+    if(!confirm(msg)) return;
+    touch(Object.assign(j,{deleted:true}));
+    save(); render(); renderJenisList();
+    toast('Jenis dihapus');
+  }));
+}
+/* ══════════════════════════════════════════
+   PEMILIH TIM & ANGGOTA TIM
+   Setiap lomba punya salinan tim sendiri → ubah di satu lomba
+   tidak memengaruhi lomba lain.
+   ══════════════════════════════════════════ */
+function cloneTimMembers(members){
+  return (members||[]).map(m=>({
+    id:uid(),
+    name:m.name||'',
+    peran:m.peran==='ketua'?'ketua':'anggota',
+    nim:m.nim||''
+  }));
+}
+
+function setupTimPicker(lomba){
+  const wrap=document.getElementById('fi-tim-wrap');
+  if(!wrap) return;
+  const cur=lomba?normTim(lomba.tim):null;
+  timPick=cur
+    ? {mode:'current',name:cur.name,members:cloneTimMembers(cur.members),orig:cur}
+    : {mode:'none',name:'',members:[],orig:null};
+
+  const masters=(db.timLomba||[]).filter(t=>!t.deleted&&t.name);
+  const opts=[
+    `<option value="">— Tanpa Tim —</option>`,
+    cur?`<option value="__current__">Tim saat ini: ${esc(cur.name)}</option>`:''
+  ];
+  if(masters.length){
+    opts.push(`<optgroup label="Daftar Tim">`);
+    masters.forEach(t=>opts.push(`<option value="master:${t.id}">${esc(t.name)}</option>`));
+    opts.push(`</optgroup>`);
+  }
+
+  wrap.innerHTML=`
+    <select class="form-select" id="fi-lomba-tim">${opts.join('')}</select>
+    ${masters.length?'':`<div class="tim-hint">Belum ada tim. Buat dulu lewat tombol "👥 Kelola Tim" di toolbar.</div>`}
+    <div id="fi-tim-editor" style="display:none">
+      <input class="form-input" id="fi-tim-name" type="text" placeholder="Nama tim" maxlength="100" style="margin-top:8px"/>
+      <table class="tim-table">
+        <colgroup><col style="width:40%"/><col style="width:24%"/><col style="width:24%"/><col style="width:12%"/></colgroup>
+        <thead><tr><th>Nama Anggota</th><th>Peran</th><th>NIM / ID</th><th></th></tr></thead>
+        <tbody id="fi-tim-rows"></tbody>
+      </table>
+      <button type="button" class="tim-add-row" id="fi-tim-add">＋ Tambah Baris</button>
+      <div class="tim-hint" id="fi-tim-hint"></div>
+    </div>`;
+
+  const sel=document.getElementById('fi-lomba-tim');
+  sel.value=cur?'__current__':'';
+  sel.addEventListener('change',e=>onTimSelect(e.target.value));
+
+  document.getElementById('fi-tim-name').addEventListener('input',e=>{ if(timPick) timPick.name=e.target.value; });
+  document.getElementById('fi-tim-add').addEventListener('click',()=>{
+    if(!timPick) return;
+    timPick.members.push({id:uid(),name:'',peran:'anggota',nim:''});
+    renderTimRows();
+    const inputs=document.querySelectorAll('#fi-tim-rows input[data-f="name"]');
+    const last=inputs[inputs.length-1];
+    if(last) last.focus();
+  });
+
+  onTimSelect(sel.value);
+}
+
+function onTimSelect(val){
+  const ed=document.getElementById('fi-tim-editor');
+  if(!ed||!timPick) return;
+  if(val===''){
+    timPick.mode='none';
+    ed.style.display='none';
+    return;
+  }
+  if(val==='__current__'){
+    const o=timPick.orig||{name:'',members:[]};
+    timPick.mode='current';
+    timPick.name=o.name;
+    timPick.members=cloneTimMembers(o.members);
+  } else if(val.startsWith('master:')){
+    const t=(db.timLomba||[]).find(x=>x.id===val.slice(7));
+    timPick.mode='master';
+    timPick.name=t?t.name:'';
+    timPick.members=t?cloneTimMembers(timMembers(t)):[];
+  }
+  ed.style.display='';
+  const nameInp=document.getElementById('fi-tim-name');
+  if(nameInp) nameInp.value=timPick.name;
+  renderTimRows();
+}
+
+function renderTimRows(){
+  const tb=document.getElementById('fi-tim-rows');
+  const hint=document.getElementById('fi-tim-hint');
+  if(!tb||!timPick) return;
+
+  if(!timPick.members.length){
+    tb.innerHTML=`<tr><td colspan="4" style="padding:12px;text-align:center;color:var(--dim);font-size:.7rem">Belum ada anggota — tekan "＋ Tambah Baris".</td></tr>`;
+  } else {
+    tb.innerHTML=timPick.members.map((m,i)=>`
+      <tr>
+        <td><input class="form-input" data-f="name" data-i="${i}" type="text" value="${esc(m.name)}" placeholder="Nama lengkap" maxlength="60"/></td>
+        <td><select class="form-select" data-f="peran" data-i="${i}">
+          <option value="anggota"${m.peran!=='ketua'?' selected':''}>Anggota</option>
+          <option value="ketua"${m.peran==='ketua'?' selected':''}>Ketua</option>
+        </select></td>
+        <td><input class="form-input" data-f="nim" data-i="${i}" type="text" value="${esc(m.nim)}" placeholder="Opsional" maxlength="30"/></td>
+        <td style="text-align:center"><button type="button" class="tim-del-btn" data-del="${i}" title="Hapus anggota">✕</button></td>
+      </tr>`).join('');
+  }
+
+  const bits=[];
+  if(timPick.mode==='master') bits.push('Anggota disalin dari daftar tim — perubahan di sini tidak mengubah tim master.');
+  if(timPick.mode==='current') bits.push('Ini salinan tim untuk lomba ini — perubahan di sini tidak mengubah tim master.');
+  if((timPick.mode==='current'||timPick.mode==='master')&&!timPick.members.length) bits.push('Tim ini belum punya daftar anggota — tambahkan baris di bawah.');
+  bits.push('Satu tim hanya boleh 1 ketua — anggota lain otomatis jadi Anggota.');
+  if(hint) hint.textContent=bits.join(' ');
+
+  tb.querySelectorAll('[data-f]').forEach(inp=>{
+    const i=+inp.dataset.i;
+    if(inp.tagName==='SELECT'){
+      inp.addEventListener('change',e=>{
+        const v=e.target.value;
+        if(!timPick||!timPick.members[i]) return;
+        timPick.members[i].peran=v;
+        if(v==='ketua'){
+          let demoted=0;
+          timPick.members.forEach((m,j)=>{ if(j!==i&&m.peran==='ketua'){m.peran='anggota';demoted++;} });
+          renderTimRows();
+          toast(demoted?'Peran anggota lain otomatis jadi Anggota':'Peran diubah jadi Ketua');
+        }
+      });
+    } else {
+      inp.addEventListener('input',e=>{
+        if(!timPick||!timPick.members[i]) return;
+        timPick.members[i][inp.dataset.f]=e.target.value;
+      });
+    }
+  });
+
+  tb.querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(!timPick) return;
+      timPick.members.splice(+b.dataset.del,1);
+      renderTimRows();
+    });
+  });
+}
+
+function buildTimValue(){
+  if(!timPick||timPick.mode==='none') return null;
+  const nm=(timPick.name||'').trim();
+  if(!nm){ toast('Nama tim wajib diisi',true); return false; }
+  const mem=timPick.members.filter(m=>(m.name||'').trim());
+  if(!mem.length){ toast('Isi minimal 1 anggota tim',true); return false; }
+  return {
+    name:nm,
+    members:mem.map(m=>({
+      id:m.id||uid(),
+      name:m.name.trim(),
+      peran:m.peran==='ketua'?'ketua':'anggota',
+      nim:(m.nim||'').trim()
+    }))
+  };
+}
+
+/* ── Daftar tim master (modal "Kelola Tim") ── */
+function renderTimList(){
+  const box=document.getElementById('ti-list');
+  if(!box) return;
+  const list=(db.timLomba||[]).filter(t=>!t.deleted&&t.name);
+  if(!list.length){
+    box.innerHTML=`<div style="padding:22px;text-align:center;color:var(--dim);font-size:.76rem">Belum ada tim. Tekan "＋ Tambah Tim" untuk membuat tim pertama.</div>`;
+    return;
+  }
+  box.innerHTML=list.map(t=>`
+    <div class="ti-row">
+      <div class="ti-info">
+        <div class="ti-name">👥 ${esc(t.name)}</div>
+        <div class="ti-meta">${timMembers(t).length} anggota</div>
+      </div>
+      <div class="ti-acts">
+        <button class="asset-act-btn" data-ti-edit="${t.id}" title="Edit tim">✎</button>
+        <button class="asset-act-btn del" data-ti-del="${t.id}" title="Hapus tim">✕</button>
+      </div>
+    </div>`).join('');
+  box.querySelectorAll('[data-ti-edit]').forEach(b=>b.addEventListener('click',()=>openModal('tim-edit',{id:b.dataset.tiEdit})));
+  box.querySelectorAll('[data-ti-del]').forEach(b=>b.addEventListener('click',()=>{
+    const t=(db.timLomba||[]).find(x=>x.id===b.dataset.tiDel);
+    if(!t) return;
+    const used=(db.lombas||[]).filter(l=>!l.deleted&&l.tim&&l.tim.name===t.name).length;
+    const msg=used
+      ? `Hapus tim "${t.name}"?\n\n${used} lomba memakai tim ini. Tim di lomba tersebut tetap tersimpan (lomba menyimpan salinan).`
+      : `Hapus tim "${t.name}"?`;
+    if(!confirm(msg)) return;
+    touch(Object.assign(t,{deleted:true}));
+    save(); render(); renderTimList();
+    toast('Tim dihapus');
+  }));
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.add('hidden');
+  const saveBtn=document.getElementById('modalSave');
+  saveBtn.textContent='Simpan';
+  document.getElementById('modalCancel').textContent='Batal';
+  mMode=null; mCtx=null; timPick=null;
+}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalCancel').addEventListener('click',()=>{
+  if(mMode==='tim-add'||mMode==='tim-edit'){ openModal('tim-list',{}); return; }
+  if(mMode==='jenis-add'||mMode==='jenis-edit'){ openModal('jenis-list',{}); return; }
+  closeModal();
+});
+document.getElementById('modalOverlay').addEventListener('click',closeModal);
+document.getElementById('modal').addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+document.getElementById('modalSave').addEventListener('click',()=>{
+  if(!mMode) return;
+
+  if(mMode==='admin-login'){
+    const val=(document.getElementById('fi-admin-pass')?.value||'').trim();
+    if(val===PASS_ADMIN){ setRole('admin'); closeModal(); toast('Mode admin aktif'); }
+    else toast('Kode superadmin salah',true);
+    return;
+  }
+
+  if(mMode==='lomba-add'||mMode==='lomba-edit'){
+    const nama_v=document.getElementById('fi-lomba-nama').value.trim();
+    if(!nama_v){ toast('Nama lomba wajib diisi',true); return; }
+    const tim_v=buildTimValue();
+    if(tim_v===false) return;
+    /* jenis: '' = tanpa jenis, '__current__' = pertahankan jenis lama, id = master */
+    let jenis_v=null, jenisId_v=null;
+    const jSel=document.getElementById('fi-lomba-jenis');
+    if(jSel&&jSel.value){
+      if(jSel.value==='__current__'){
+        jenis_v=mCtx.id?((db.lombas||[]).find(x=>x.id===mCtx.id)?.jenis||null):null;
+        jenisId_v=mCtx.id?((db.lombas||[]).find(x=>x.id===mCtx.id)?.jenisId||null):null;
+      } else {
+        const jm=(db.jenisLomba||[]).find(x=>x.id===jSel.value);
+        if(jm){ jenis_v=jm.name; jenisId_v=jm.id; }
+      }
+    }
+    const regStart_v=document.getElementById('fi-lomba-reg-start').value||null;
+    const regEnd_v=document.getElementById('fi-lomba-reg-end').value||null;
+    const daftar_v=document.getElementById('fi-lomba-daftar').value||null;
+    const url_v=document.getElementById('fi-lomba-url').value.trim()||null;
+    if(!Array.isArray(db.lombas)) db.lombas=[];
+    if(mMode==='lomba-add'){
+      db.lombas.push(touch({id:uid(),nama:nama_v,jenis:jenis_v,jenisId:jenisId_v,tim:tim_v,regStart:regStart_v,regEnd:regEnd_v,tanggalDaftar:daftar_v,url:url_v,ide:[],createdAt:Date.now()}));
+    } else {
+      const l=db.lombas.find(x=>x.id===mCtx.id);
+      if(!l) return;
+      l.nama=nama_v; l.jenis=jenis_v; l.jenisId=jenisId_v; l.tim=tim_v; l.regStart=regStart_v; l.regEnd=regEnd_v; l.tanggalDaftar=daftar_v; l.url=url_v; touch(l);
+    }
+    save(); render(); closeModal();
+    return;
+  }
+
+  if(mMode==='jenis-add'||mMode==='jenis-edit'){
+    const nm=(document.getElementById('fi-jenis-nama')?.value||'').trim();
+    if(!nm){ toast('Nama jenis wajib diisi',true); return; }
+    if(!Array.isArray(db.jenisLomba)) db.jenisLomba=[];
+    if(mMode==='jenis-add'){
+      db.jenisLomba.push(touch({id:uid(),name:nm,createdAt:Date.now()}));
+    } else {
+      const j=db.jenisLomba.find(x=>x.id===mCtx.id);
+      if(!j) return;
+      j.name=nm; touch(j);
+    }
+    save(); render(); openModal('jenis-list',{});
+    toast(mMode==='jenis-add'?'Jenis ditambahkan':'Jenis diperbarui');
+    return;
+  }
+
+  if(mMode==='tim-add'||mMode==='tim-edit'){
+    const nm=(timPick?.name||'').trim();
+    if(!nm){ toast('Nama tim wajib diisi',true); return; }
+    const mem=(timPick?.members||[]).filter(m=>(m.name||'').trim());
+    if(!mem.length){ toast('Isi minimal 1 anggota tim',true); return; }
+    const members=mem.map(m=>({
+      id:m.id||uid(),
+      name:m.name.trim(),
+      peran:m.peran==='ketua'?'ketua':'anggota',
+      nim:(m.nim||'').trim()
+    }));
+    if(!Array.isArray(db.timLomba)) db.timLomba=[];
+    if(mMode==='tim-add'){
+      db.timLomba.push(touch({id:uid(),name:nm,members,createdAt:Date.now()}));
+    } else {
+      const t=db.timLomba.find(x=>x.id===mCtx.id);
+      if(!t) return;
+      t.name=nm; t.members=members; touch(t);
+    }
+    save(); render(); openModal('tim-list',{});
+    toast(mMode==='tim-add'?'Tim ditambahkan':'Tim diperbarui');
+    return;
+  }
+
+  if(mMode==='lomba-ide-add'||mMode==='lomba-ide-edit'){
+    const judul_v=document.getElementById('fi-ide-judul').value.trim();
+    if(!judul_v) return;
+    const desc_v=document.getElementById('fi-ide-desc').value.trim()||null;
+    const author_v=(document.getElementById('fi-ide-author')?.value||'').trim();
+    const l=(db.lombas||[]).find(x=>x.id===mCtx.lombaId);
+    if(!l) return;
+    if(!Array.isArray(l.ide)) l.ide=[];
+    if(mMode==='lomba-ide-add'){
+      const authorRole=mCtx.authorRole||(isAdmin()?'admin':'viewer');
+      const author=author_v||(authorRole==='admin'?'Tim':'Anonim');
+      l.ide.push(touch({
+        id:uid(), judul:judul_v, desc:desc_v,
+        author, authorRole,
+        authorDevice:authorRole==='viewer'?DEVICE_ID:null,
+        likes:0, dislikes:0, createdAt:Date.now()
+      }));
+    } else {
+      const ide=l.ide.find(x=>x.id===mCtx.id);
+      if(!ide) return;
+      ide.judul=judul_v; ide.desc=desc_v;
+      if(author_v) ide.author=author_v;
+      if(!ide.authorRole) ide.authorRole='admin';
+      touch(ide);
+    }
+    touch(l); save(); render(); closeModal();
+    return;
+  }
+});
+
+/* ══════════════════════════════════════════
+   RENDER
+   ══════════════════════════════════════════ */
+function render(){ renderLomba(); }
+
+function renderLomba(){
+  const area=document.getElementById('lombaArea');
+  area.innerHTML='';
+  const admin=isAdmin();
+
+  /* Toolbar */
+  const toolbar=document.createElement('div');
+  toolbar.className='notul-toolbar';
+  toolbar.innerHTML=`<span class="notul-toolbar-title">🏆 Lomba</span>`;
+
+  /* Filter jenis (pill) — di sebelah kiri searchbar */
+  const jenisList=[...new Set((db.lombas||[]).filter(l=>!l.deleted&&l.jenis).map(l=>l.jenis))]
+    .sort((a,b)=>a.localeCompare(b,'id'));
+  /* filter jenis yang sudah tidak ada (mis. semua lombanya dihapus) → reset ke "Semua" */
+  if(lombaJenisFilter && !jenisList.includes(lombaJenisFilter) && jenisList.length) lombaJenisFilter='';
+  if(jenisList.length){
+    const frow=document.createElement('div');
+    frow.className='lomba-jenis-filter';
+    frow.innerHTML=`<button class="lomba-jenis-pill${lombaJenisFilter===''?' active':''}" data-jf="">Semua</button>`
+      +jenisList.map(j=>`<button class="lomba-jenis-pill${lombaJenisFilter===j?' active':''}" data-jf="${esc(j)}">${esc(j)}</button>`).join('');
+    frow.querySelectorAll('[data-jf]').forEach(b=>b.addEventListener('click',()=>{
+      lombaJenisFilter=b.dataset.jf;
+      renderLomba();
+    }));
+    toolbar.appendChild(frow);
+  }
+
+  const searchInp=document.createElement('input');
+  searchInp.className='asset-search';
+  searchInp.id='lombaSearchInp';
+  searchInp.placeholder='Cari lomba / jenis…';
+  searchInp.value=lombaSearch;
+  searchInp.style.maxWidth='200px';
+  toolbar.appendChild(searchInp);
+
+  if(admin){
+    const jenisBtn=document.createElement('button');
+    jenisBtn.className='notul-topik-add-btn';
+    jenisBtn.style.cssText='margin:0;width:auto';
+    jenisBtn.textContent='🏷 Kelola Jenis';
+    jenisBtn.addEventListener('click',()=>openModal('jenis-list',{}));
+    toolbar.appendChild(jenisBtn);
+
+    const timBtn=document.createElement('button');
+    timBtn.className='notul-topik-add-btn';
+    timBtn.style.cssText='margin:0;width:auto';
+    timBtn.textContent='👥 Kelola Tim';
+    timBtn.addEventListener('click',()=>openModal('tim-list',{}));
+    toolbar.appendChild(timBtn);
+
+    const btn=document.createElement('button');
+    btn.className='notul-topik-add-btn';
+    btn.style.cssText='margin:0;width:auto';
+    btn.textContent='＋ Tambah Lomba';
+    btn.addEventListener('click',()=>openModal('lomba-add',{}));
+    toolbar.appendChild(btn);
+  }
+  area.appendChild(toolbar);
+  area.querySelector('#lombaSearchInp').addEventListener('input',e=>{
+    lombaSearch=e.target.value;
+    const pos=e.target.selectionStart;
+    renderLomba();
+    const inp=document.getElementById('lombaSearchInp');
+    if(inp){inp.focus();try{inp.setSelectionRange(pos,pos);}catch(e){}}
+  });
+
+  const q=lombaSearch.trim().toLowerCase();
+  const list=(db.lombas||[]).filter(l=>!l.deleted
+    && (!q||String(l.nama||'').toLowerCase().includes(q)||String(l.jenis||'').toLowerCase().includes(q))
+    && (!lombaJenisFilter||String(l.jenis||'')===lombaJenisFilter));
+  if(!list.length){
+    const empty=document.createElement('div');
+    empty.style.cssText='padding:40px;text-align:center;color:var(--dim);font-size:.82rem';
+    empty.textContent=lombaJenisFilter
+      ? (q?`Tidak ada lomba dengan jenis "${lombaJenisFilter}" yang cocok dengan pencarian.`:`Tidak ada lomba dengan jenis "${lombaJenisFilter}".`)
+      : (q?'Tidak ada lomba yang cocok.':'Belum ada lomba.');
+    area.appendChild(empty);
+    return;
+  }
+
+  list.forEach(l=>{
+    const ideList=(l.ide||[]).filter(x=>!x.deleted);
+    /* polling: urut dari suara tertinggi, lalu terbaru */
+    const sortedIde=[...ideList].sort((a,b)=>((b.likes||0)-(a.likes||0))||((b.createdAt||0)-(a.createdAt||0)));
+    const totalSuara=sortedIde.reduce((s,i)=>s+(i.likes||0),0);
+    const maxLikes=sortedIde.reduce((m,i)=>Math.max(m,i.likes||0),0);
+
+    /* countdown */
+    let countdownHtml='';
+    if(l.regEnd){
+      const today=new Date(); today.setHours(0,0,0,0);
+      const end=new Date(l.regEnd); end.setHours(0,0,0,0);
+      const diff=Math.round((end-today)/(1000*60*60*24));
+      if(diff>0) countdownHtml=`<span style="color:${diff<=3?'var(--red,#f87171)':diff<=7?'#fbbf24':'var(--green,#34d399)'}">⏳ ${diff} hari lagi</span>`;
+      else if(diff===0) countdownHtml=`<span style="color:var(--red,#f87171)">⏳ Tutup hari ini</span>`;
+      else countdownHtml=`<span style="color:var(--dim)">Reg ditutup</span>`;
+    }
+
+    const card=document.createElement('div');
+    card.className='notul-topik'+(openLombas.has(l.id)?' open':'');
+    card.innerHTML=`
+      <div class="notul-topik-head">
+        <div class="notul-topik-icon">🏆</div>
+        <div class="notul-topik-info">
+          <div class="notul-topik-title">${esc(l.nama)}</div>
+          <div class="notul-topik-meta">${[
+            l.jenis?`Jenis: ${esc(l.jenis)}`:'',
+            l.tim&&l.tim.name?`Tim: ${esc(l.tim.name)}${timMembers(l.tim).length?` (${timMembers(l.tim).length} anggota)`:''}`:'',
+            (l.regStart||l.regEnd)?`Reg: ${esc(l.regStart||'?')} — ${esc(l.regEnd||'?')}`:'',
+            countdownHtml,
+            l.tanggalDaftar?`Daftar: ${esc(l.tanggalDaftar)}`:'',
+            l.url?`<a href="${esc(l.url)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none" onclick="event.stopPropagation()">🔗 Link</a>`:'',
+            `${ideList.length} ide`,
+            `${totalSuara} suara`
+          ].filter(Boolean).join(' · ')}</div>
+        </div>
+        <div class="notul-topik-acts">
+          ${admin?`<button class="asset-act-btn" data-lomba-edit="${l.id}" title="Edit">✎</button>
+          <button class="asset-act-btn del" data-lomba-del="${l.id}" title="Hapus">✕</button>`:''}
+        </div>
+        <span class="notul-chevron">▼</span>
+      </div>
+      <div class="notul-topik-body" id="lomba-ide-list-${l.id}">
+        <div class="lomba-poll-total">
+          <span>🗳️ <b>${totalSuara}</b> suara</span>
+          <span>·</span>
+          <span>${ideList.length} ide</span>
+          <span>·</span>
+          <span>1 suara per lomba per perangkat</span>
+        </div>
+        ${l.tim&&l.tim.name?`
+        <div class="tim-drop${openTim.has(l.id)?' open':''}" data-tim-drop="${l.id}">
+          <div class="tim-drop-head">
+            <span>👥</span>
+            <span>Tim: <b>${esc(l.tim.name)}</b>${timMembers(l.tim).length?` · ${timMembers(l.tim).length} anggota`:''}</span>
+            ${admin?`<button class="asset-act-btn" data-tim-edit="${l.id}" title="Ubah tim">✎</button>`:''}
+            <span class="tim-drop-chev">▼</span>
+          </div>
+          <div class="tim-drop-body">
+            ${timMembers(l.tim).length?`
+            <table class="tim-members">
+              <thead><tr><th>Nama</th><th style="width:86px">Peran</th><th style="width:120px">NIM / ID</th></tr></thead>
+              <tbody>${timMembers(l.tim).map(m=>`
+                <tr>
+                  <td>${esc(m.name)}</td>
+                  <td><span class="tim-peran-badge${m.peran==='ketua'?' ketua':''}">${m.peran==='ketua'?'Ketua':'Anggota'}</span></td>
+                  <td>${esc(m.nim||'—')}</td>
+                </tr>`).join('')}</tbody>
+            </table>`:`<div class="tim-empty">Belum ada daftar anggota untuk tim ini.</div>`}
+          </div>
+        </div>`:''}
+        <button class="notul-topik-add-btn" data-add-ide="${l.id}">${admin?'＋ Tambah Ide':'＋ Ajukan Ide'}</button>
+      </div>
+    `;
+
+    /* Toggle open */
+    card.querySelector('.notul-topik-head').addEventListener('click',e=>{
+      if(e.target.closest('.notul-topik-acts')||e.target.closest('[data-add-ide]')) return;
+      card.classList.toggle('open');
+      if(card.classList.contains('open')) openLombas.add(l.id); else openLombas.delete(l.id);
+    });
+
+    /* Edit lomba */
+    card.querySelector('[data-lomba-edit]')?.addEventListener('click',e=>{
+      e.stopPropagation();
+      openModal('lomba-edit',{id:l.id});
+    });
+
+    /* Delete lomba (cascade) */
+    card.querySelector('[data-lomba-del]')?.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(!confirm(`Hapus lomba "${l.nama}" dan ${ideList.length} idenya?`)) return;
+      (l.ide||[]).forEach(ide=>touch(Object.assign(ide,{deleted:true})));
+      touch(Object.assign(l,{deleted:true}));
+      save(); renderLomba();
+    });
+
+    /* Ajukan / Tambah ide */
+    card.querySelector('[data-add-ide]')?.addEventListener('click',e=>{
+      e.stopPropagation();
+      openModal('lomba-ide-add',{lombaId:l.id, authorRole:admin?'admin':'viewer'});
+    });
+
+    /* Dropdown anggota tim */
+    const timDrop=card.querySelector('[data-tim-drop]');
+    timDrop?.querySelector('.tim-drop-head')?.addEventListener('click',e=>{
+      if(e.target.closest('[data-tim-edit]')) return;
+      timDrop.classList.toggle('open');
+      if(timDrop.classList.contains('open')) openTim.add(l.id); else openTim.delete(l.id);
+    });
+    timDrop?.querySelector('[data-tim-edit]')?.addEventListener('click',e=>{
+      e.stopPropagation();
+      openModal('lomba-edit',{id:l.id});
+    });
+
+    /* Render ide list */
+    const ideContainer=card.querySelector(`#lomba-ide-list-${l.id}`);
+    const lombaVote=getLombaVoteForLomba(l.id);
+
+    function doVote(ide,voteType){
+      const prevIdeId=lombaVote?.ideId;
+      const prevVote=lombaVote?.vote;
+      /* undo: same ide same vote */
+      if(prevIdeId===ide.id && prevVote===voteType){
+        if(voteType==='like') ide.likes=Math.max(0,(ide.likes||0)-1);
+        else ide.dislikes=Math.max(0,(ide.dislikes||0)-1);
+        touch(ide);
+        setLombaVoteForLomba(l.id,null,null);
+      } else {
+        if(prevIdeId && prevIdeId!==ide.id){
+          const prevIde=(l.ide||[]).find(x=>x.id===prevIdeId);
+          if(prevIde){
+            if(prevVote==='like') prevIde.likes=Math.max(0,(prevIde.likes||0)-1);
+            else prevIde.dislikes=Math.max(0,(prevIde.dislikes||0)-1);
+            touch(prevIde);
+          }
+        }
+        if(prevIdeId===ide.id && prevVote && prevVote!==voteType){
+          if(prevVote==='like') ide.likes=Math.max(0,(ide.likes||0)-1);
+          else ide.dislikes=Math.max(0,(ide.dislikes||0)-1);
+        }
+        if(voteType==='like') ide.likes=(ide.likes||0)+1;
+        else ide.dislikes=(ide.dislikes||0)+1;
+        touch(ide);
+        setLombaVoteForLomba(l.id,ide.id,voteType);
+      }
+      touch(l); save(); renderLomba();
+    }
+
+    sortedIde.forEach(ide=>{
+      const myVote=(lombaVote?.ideId===ide.id)?lombaVote.vote:null;
+      const likes=ide.likes||0;
+      const dislikes=ide.dislikes||0;
+      const pct=totalSuara?Math.round(likes/totalSuara*100):0;
+      const isTop=maxLikes>0&&likes===maxLikes;
+      const isMine=!!(ide.authorDevice&&ide.authorDevice===DEVICE_ID);
+      const canDelete=admin||isMine;
+      const authorLabel=ide.author||(ide.authorRole==='viewer'?'Anonim':'Tim');
+      const authorCls=ide.authorRole==='viewer'?'viewer':'team';
+      const ideEl=document.createElement('div');
+      ideEl.className='lomba-ide-row';
+      ideEl.innerHTML=`
+        <div class="lomba-ide-main">
+          <div style="font-size:.8rem;font-weight:600;color:var(--text)">${esc(ide.judul)}</div>
+          ${ide.desc?`<div style="font-size:.72rem;color:var(--dim);margin-top:2px;white-space:pre-wrap;line-height:1.5">${esc(ide.desc)}</div>`:''}
+          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+            <span class="lomba-ide-author ${authorCls}">👤 ${esc(authorLabel)}</span>
+            ${ide.authorRole==='viewer'?'<span class="lomba-ide-author viewer">Usulan Viewer</span>':''}
+            ${ide.promoted?'<span class="lomba-ide-author official">★ Resmi</span>':''}
+            ${isTop?'<span class="lomba-ide-author top">🥇 Teratas</span>':''}
+          </div>
+          ${totalSuara?`<div class="lomba-poll-bar"><div class="lomba-poll-fill" style="width:${pct}%"></div></div>`:''}
+          <div class="lomba-poll-meta">${totalSuara?`${pct}% dari ${totalSuara} suara`:'Belum ada suara — jadilah yang pertama memilih'}</div>
+        </div>
+        <div class="lomba-ide-acts" style="opacity:1">
+          <button class="lomba-vote-btn${myVote==='like'?' active':''}" data-ide-like="${ide.id}" title="Pilih ide ini">👍 <span>${likes}</span></button>
+          <button class="lomba-vote-btn${myVote==='dislike'?' active-dis':''}" data-ide-dislike="${ide.id}" title="Tidak suka">👎 <span>${dislikes}</span></button>
+          ${admin?`<button class="asset-act-btn" data-ide-edit="${ide.id}" title="Edit">✎</button>`:''}
+          ${admin?`<button class="asset-act-btn" data-ide-star="${ide.id}" title="${ide.promoted?'Batalkan status resmi':'Tandai resmi / terpilih'}">★</button>`:''}
+          ${canDelete?`<button class="asset-act-btn del" data-ide-del="${ide.id}" title="Hapus">✕</button>`:''}
+        </div>
+      `;
+
+      ideEl.querySelector('[data-ide-like]').addEventListener('click',e=>{ e.stopPropagation(); doVote(ide,'like'); });
+      ideEl.querySelector('[data-ide-dislike]').addEventListener('click',e=>{ e.stopPropagation(); doVote(ide,'dislike'); });
+
+      ideEl.querySelector('[data-ide-edit]')?.addEventListener('click',e=>{
+        e.stopPropagation();
+        openModal('lomba-ide-edit',{id:ide.id,lombaId:l.id,authorRole:ide.authorRole||'admin'});
+      });
+
+      ideEl.querySelector('[data-ide-star]')?.addEventListener('click',e=>{
+        e.stopPropagation();
+        ide.promoted=!ide.promoted;
+        touch(ide); touch(l); save(); renderLomba();
+      });
+
+      ideEl.querySelector('[data-ide-del]')?.addEventListener('click',e=>{
+        e.stopPropagation();
+        if(!confirm(`Hapus ide "${ide.judul}"?`)) return;
+        touch(Object.assign(ide,{deleted:true}));
+        touch(l); save(); renderLomba();
+      });
+
+      ideContainer.insertBefore(ideEl,ideContainer.querySelector('[data-add-ide]'));
+    });
+
+    area.appendChild(card);
+  });
+}
+
+/* ══════════════════════════════════════════
+   GATE — wajib kode akses (tidak ada akses tamu)
+   ══════════════════════════════════════════ */
+function getStoredRole(){ try{ return sessionStorage.getItem(ROLE_KEY)||''; }catch{ return ''; } }
+function showGate(){
+  const g=document.getElementById('gate');
+  g.classList.remove('hidden');
+  const inp=document.getElementById('gateInput');
+  inp.value='';
+  setTimeout(()=>inp.focus(),50);
+}
+function hideGate(){ document.getElementById('gate').classList.add('hidden'); }
+(function initGate(){
+  const inp=document.getElementById('gateInput');
+  const err=document.getElementById('gateErr');
+  document.getElementById('gateEye').addEventListener('click',()=>{
+    inp.type=inp.type==='password'?'text':'password';
+  });
+  function attempt(){
+    const val=inp.value.trim();
+    if(val===PASS_ADMIN||val===PASS_VIEW){
+      try{ sessionStorage.setItem(ROLE_KEY,val===PASS_ADMIN?'admin':'viewer'); }catch{}
+      role=val===PASS_ADMIN?'admin':'viewer';
+      applyRole();
+      hideGate();
+      render();
+      return;
+    }
+    err.textContent='Kode akses tidak valid.';
+    inp.classList.add('error');
+    setTimeout(()=>inp.classList.remove('error'),1600);
+    inp.value='';
+  }
+  document.getElementById('gateBtn').addEventListener('click',attempt);
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') attempt(); });
+})();
+
+/* ══════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════ */
+(async function init(){
+  try{
+    const stored=sessionStorage.getItem(ROLE_KEY);
+    if(stored==='admin') role='admin';
+    else if(stored==='viewer') role='viewer';
+  }catch{}
+  applyRole();
+  await loadDb();
+  render();
+  document.getElementById('pageFoot').textContent='Data tersimpan di GitHub Gist · Lomba · Alteco';
+  const ld=document.getElementById('loading');
+  ld.style.opacity='0';
+  setTimeout(()=>ld.remove(),300);
+  /* tanpa session → wajib masuk dengan kode */
+  const stored=getStoredRole();
+  if(stored!=='admin'&&stored!=='viewer') showGate();
+})();
+</script>
+</body>
+</html>

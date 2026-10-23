@@ -1,0 +1,181 @@
+name: Daily Notification
+
+on:
+  schedule:
+    - cron: '1 17 * * *'  # 17:01 UTC = 00:01 WIB
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force send all active events (skip dedup, no notifSentDate update)'
+        required: false
+        default: 'false'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send push notifications
+        env:
+          ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
+          ONESIGNAL_REST_KEY: ${{ secrets.ONESIGNAL_REST_KEY }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+          GIST_PAT: ${{ secrets.GIST_PAT }}
+          FORCE: ${{ github.event.inputs.force || 'false' }}
+        run: |
+          node << 'EOF'
+          const https = require('https');
+
+          async function req(method, url, headers, body) {
+            return new Promise((res, rej) => {
+              const data = body ? JSON.stringify(body) : null;
+              const u = new URL(url);
+              const r = https.request({
+                hostname: u.hostname, path: u.pathname + u.search, method,
+                headers: { ...headers, ...(data ? { 'Content-Type':'application/json','Content-Length':Buffer.byteLength(data) } : {}) }
+              }, resp => {
+                let d = ''; resp.on('data', c => d += c);
+                resp.on('end', () => { try { res(JSON.parse(d)); } catch { res(d); } });
+              });
+              r.on('error', rej);
+              if (data) r.write(data);
+              r.end();
+            });
+          }
+
+          (async () => {
+            const gistId  = process.env.GIST_ID;
+            const gistPat = process.env.GIST_PAT;
+            const osAppId = process.env.ONESIGNAL_APP_ID;
+            const osKey   = process.env.ONESIGNAL_REST_KEY;
+            const force   = process.env.FORCE === 'true';
+            const ghHdr   = { 'Authorization': `Bearer ${gistPat}`, 'Accept': 'application/vnd.github+json', 'User-Agent': 'alteco-notif' };
+
+            // Load Gist
+            const gist = await req('GET', `https://api.github.com/gists/${gistId}`, ghHdr);
+            const content = gist.files?.['alteco-data.json']?.content;
+            if (!content) { console.log('No data'); process.exit(0); }
+            const db = JSON.parse(content);
+
+            if (!db.settings?.pushNotifEnabled) { console.log('Push disabled'); process.exit(0); }
+
+            // Today in WIB
+            const now   = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+            const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+            const dow   = now.getDay();
+            const dom   = now.getDate();
+
+            // notifTime for scheduled delivery
+            const notifTime = db.settings.notifTime || '07:00';
+            const [notifH, notifM] = notifTime.split(':').map(Number);
+            const sendAfter = `${today} ${String(notifH).padStart(2,'0')}:${String(notifM).padStart(2,'0')}:00 GMT+0700`;
+
+            const globalDaysBefore = db.settings.notifDaysBefore ?? 1;
+
+            let qualifying;
+
+            if (force) {
+              // Force: all active events regardless of notifSentDate
+              qualifying = (db.events || []).filter(ev => {
+                if (ev.type === 'once') return ev.date && ev.date >= today;
+                if (ev.type === 'recurring') return true;
+                return false;
+              });
+              console.log(`Force mode — ${qualifying.length} active events`);
+            } else {
+              // Normal daily: dedup + date qualification
+              qualifying = (db.events || []).filter(ev => {
+                if (ev.notifSentDate === today) return false;
+
+                if (ev.type === 'once') {
+                  if (!ev.date) return false;
+                  const startDate = new Date(ev.date + 'T00:00:00');
+                  startDate.setDate(startDate.getDate() - globalDaysBefore);
+                  const startStr = startDate.toLocaleDateString('en-CA');
+                  return today >= startStr && today <= ev.date;
+                }
+
+                if (ev.type === 'recurring') {
+                  if (ev.recurDate && today < ev.recurDate) return false;
+                  const base = ev.recurDate ? new Date(ev.recurDate + 'T00:00:00') : null;
+                  if (ev.recurrence === 'harian') return true;
+                  if (ev.recurrence === 'mingguan') return base ? dow === base.getDay() : dow === 1;
+                  if (ev.recurrence === 'bulanan')  return base ? dom === base.getDate() : dom === 1;
+                  if (ev.recurrence === 'tahunan')  return base ? (now.getMonth() === base.getMonth() && dom === base.getDate()) : false;
+                }
+                return false;
+              });
+            }
+
+            if (!qualifying.length) { console.log('No qualifying events today'); process.exit(0); }
+
+            // Build bundled notification content
+            const DAY_NAMES   = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+            const MONTH_NAMES = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+            const REC_LABELS  = { harian:'setiap hari', mingguan:'setiap minggu', bulanan:'setiap bulan', tahunan:'setiap tahun' };
+
+            const orgName = db.orgName || 'Alteco';
+
+            function timeLabel(ev) {
+              if (ev.type === 'recurring') return REC_LABELS[ev.recurrence] || 'berulang';
+              if (ev.date === today) return 'Hari ini';
+              const diff = Math.round((new Date(ev.date) - new Date(today)) / 86400000);
+              const d = new Date(ev.date + 'T00:00:00');
+              return `${diff} hari lagi · ${DAY_NAMES[d.getDay()]}, ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
+            }
+
+            let heading, bodyText;
+            if (qualifying.length === 1) {
+              const ev = qualifying[0];
+              heading = `📌 ${orgName}`;
+              bodyText = `${ev.title}\n📅 ${timeLabel(ev)}` + (ev.description?.trim() ? `\n${ev.description.trim()}` : '');
+            } else {
+              heading = `📌 ${orgName} — ${qualifying.length} Pengumuman`;
+              bodyText = qualifying.map(ev => {
+                let line = `• ${ev.title} — ${timeLabel(ev)}`;
+                if (ev.description?.trim()) line += `\n  ${ev.description.trim()}`;
+                return line;
+              }).join('\n');
+            }
+
+            console.log('Sending:', heading);
+            console.log(bodyText);
+
+            const notifPayload = {
+              app_id: osAppId,
+              included_segments: ['All'],
+              headings:  { en: heading, id: heading },
+              contents:  { en: bodyText, id: bodyText },
+              url: 'https://dionisiusnp.github.io/todolist/'
+            };
+            // send_after only for scheduled daily run, not force
+            if (!force) notifPayload.send_after = sendAfter;
+
+            const osResult = await req('POST', 'https://onesignal.com/api/v1/notifications',
+              { 'Authorization': `Key ${osKey}` },
+              notifPayload
+            );
+            console.log('OneSignal response:', JSON.stringify(osResult));
+            if (osResult.errors) {
+              console.error('OneSignal ERROR:', JSON.stringify(osResult.errors));
+              process.exit(1);
+            }
+            if (!osResult.id) {
+              console.error('OneSignal: no notification ID returned — possible auth or config issue');
+              process.exit(1);
+            }
+            console.log('OneSignal notification ID:', osResult.id, '| recipients:', osResult.recipients);
+
+            // Mark sent — only for normal daily run
+            if (!force) {
+              db.events = db.events.map(ev =>
+                qualifying.find(q => q.id === ev.id) ? { ...ev, notifSentDate: today } : ev
+              );
+              await req('PATCH', `https://api.github.com/gists/${gistId}`, ghHdr,
+                { files: { 'alteco-data.json': { content: JSON.stringify(db) } } }
+              );
+              console.log(`Done — scheduled for ${sendAfter}`);
+            } else {
+              console.log('Done — force sent immediately (notifSentDate unchanged)');
+            }
+          })();
+          EOF

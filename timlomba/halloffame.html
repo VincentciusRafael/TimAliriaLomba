@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Hall of Fame · Lomba Aliria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0b12;--surface:#12121c;--card:#181825;--bd:#23233a;
+  --text:#e2e2f0;--muted:#9494b8;--dim:#5c5c7a;
+  --accent:#6c6ff5;--accent2:#a78bfa;
+  --green:#34d399;--red:#f87171;--gold:#fbbf24;--blue:#60a5fa;--teal:#2dd4bf;
+  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+[data-theme="light"]{
+  --bg:#f4f4f9;--surface:#eaeaef;--card:#dfdfec;--bd:#c5c5d4;
+  --text:#15152a;--muted:#6a6a88;--dim:#9090aa;
+  --accent:#5356d1;--accent2:#8b5cf6;
+  --green:#059669;--red:#dc2626;--gold:#ca8a04;--blue:#2563eb;--teal:#0d9488;
+}
+html,body{height:100%}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--text);
+  display:flex;flex-direction:column;transition:background .25s,color .25s;
+}
+button{cursor:pointer;font-family:var(--font)}
+a{text-decoration:none;color:inherit}
+input{font-family:var(--font)}
+
+/* ── Nav ── */
+.nav{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--bd);transition:background .25s,border-color .25s}
+.nav-back{font-size:.72rem;font-weight:600;color:var(--muted);padding:4px 12px;border:1px solid var(--bd);border-radius:5px;transition:color .15s,border-color .15s}
+.nav-back:hover{color:var(--accent);border-color:var(--accent)}
+.nav-title{font-size:.86rem;font-weight:700}
+.nav-spacer{flex:1}
+.nav-role-badge{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid;letter-spacing:.05em;text-transform:uppercase}
+.nav-role-badge.admin{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35);color:var(--gold)}
+.nav-role-badge.viewer{background:rgba(148,148,184,.08);border-color:var(--bd);color:var(--dim)}
+.theme-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;font-size:14px;line-height:1}
+.theme-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ── Gate ── */
+.gate{position:fixed;inset:0;z-index:120;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;transition:background .25s}
+.gate.hidden{display:none}
+.gate-box{background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:30px 28px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.gate-ico{font-size:1.7rem;margin-bottom:10px}
+.gate-title{font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+.gate-sub{font-size:.7rem;color:var(--muted);margin:5px 0 20px}
+.gate-wrap{position:relative;margin-bottom:10px}
+.gate-input{width:100%;padding:10px 38px 10px 14px;border-radius:7px;border:1px solid var(--bd);background:var(--card);color:var(--text);font-family:var(--mono);font-size:.92rem;letter-spacing:.2em;outline:none;transition:border-color .15s}
+.gate-input:focus{border-color:var(--accent)}
+.gate-input.error{border-color:var(--red);animation:shake .32s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.gate-eye{position:absolute;right:9px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:.8rem;padding:2px 4px;transition:color .15s}
+.gate-eye:hover{color:var(--text)}
+.gate-btn{width:100%;padding:10px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:.82rem;transition:background .15s}
+.gate-btn:hover{background:var(--accent2)}
+.gate-err{font-size:.68rem;color:var(--red);margin-top:8px;min-height:14px}
+
+/* ── Modal ── */
+.modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal.hidden{display:none}
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.65)}
+.modal-box{position:relative;background:var(--surface);border:1px solid var(--bd);border-radius:12px;width:100%;max-width:420px;max-height:90vh;display:block;overflow-y:auto;z-index:1;transition:background .25s}
+.modal-head{display:flex;align-items:center;padding:16px 20px 12px;border-bottom:1px solid var(--bd);transition:border-color .25s}
+.modal-title{font-size:.9rem;font-weight:800;flex:1}
+.modal-close{width:26px;height:26px;border-radius:5px;border:1px solid var(--bd);background:var(--card);color:var(--muted);font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-close:hover{background:var(--red);border-color:var(--red);color:#fff}
+.modal-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px;overflow:visible}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.form-input,.form-select,.form-textarea{padding:8px 12px;border-radius:7px;border:1px solid var(--bd);background:var(--card);color:var(--text);font-size:.82rem;outline:none;transition:border-color .15s,background .25s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+.form-textarea{resize:vertical;min-height:60px;max-height:120px}
+input[type="date"].form-input{color-scheme:dark}
+[data-theme="light"] input[type="date"].form-input{color-scheme:light}
+.form-select option{background:var(--card)}
+.modal-foot{flex-shrink:0;display:flex;gap:8px;padding:12px 20px 18px;justify-content:flex-end;border-top:1px solid var(--bd)}
+.btn-cancel{padding:8px 16px;border-radius:7px;border:1px solid var(--bd);background:transparent;color:var(--muted);font-size:.78rem;font-weight:600;transition:all .15s}
+.btn-cancel:hover{color:var(--text)}
+.btn-save{padding:8px 18px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:.78rem;font-weight:700;transition:background .15s}
+.btn-save:hover{background:var(--accent2)}
+
+/* ── Tombol & ikon aksi (dipakai modal Kelola Hall of Fame) ── */
+.lomba-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--muted);font-size:.74rem;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.lomba-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(108,111,245,.08)}
+.lomba-btn.dashed{border-style:dashed;border-color:rgba(108,111,245,.4);color:var(--accent);background:transparent;width:100%;justify-content:center}
+.lomba-btn.dashed:hover{background:rgba(108,111,245,.08);border-color:var(--accent)}
+.lomba-act{width:24px;height:24px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--dim);font-size:.72rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s}
+.lomba-act:hover{border-color:var(--accent);color:var(--accent)}
+.lomba-act.del:hover{border-color:var(--red);color:var(--red)}
+
+/* ── Layout ── */
+.hof-view{flex:1;overflow-y:auto;padding:18px 20px 30px}
+.hof-head{margin-bottom:16px}
+.hof-title{font-size:1.15rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+.hof-sub{font-size:.72rem;color:var(--muted);margin-top:5px}
+
+/* ── Gelar juara ── */
+/* ── Filter peringkat (dropdown) ── */
+.hof-rank-select{padding:7px 12px;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--text);font-size:.76rem;outline:none;cursor:pointer;transition:border-color .15s}
+.hof-rank-select:focus{border-color:var(--accent)}
+.hof-rank-select option{background:var(--card);color:var(--text)}
+
+/* ── Toolbar filter ── */
+.hof-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.hof-search{padding:7px 12px;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--text);font-size:.76rem;outline:none;min-width:150px}
+.hof-search:focus{border-color:var(--accent)}
+.hof-search::placeholder{color:var(--dim)}
+
+/* ── Grid entri ── */
+.hof-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;align-items:start}
+.hof-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:15px 17px 16px;transition:border-color .2s}
+.hof-card:hover{border-color:rgba(108,111,245,.45)}
+.hof-card-top{display:flex;align-items:center;gap:10px}
+.hof-medal{font-size:1.05rem;width:28px;height:28px;border-radius:99px;border:1px solid var(--bd);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.hof-card-name{font-size:.98rem;font-weight:800;letter-spacing:-.01em;word-break:break-word;line-height:1.3}
+.hof-card-nim{font-size:.7rem;color:var(--muted);font-family:var(--mono);margin-top:9px;letter-spacing:.02em}
+.hof-card-jurusan{font-size:.72rem;color:var(--muted);margin-top:3px}
+.hof-card-lomba{font-size:.76rem;color:var(--text);font-weight:600;margin-top:11px;padding-top:10px;border-top:1px solid var(--bd);line-height:1.55}
+.hof-card-lomba>div{display:flex;align-items:center;gap:6px;margin-top:5px;font-weight:500;color:var(--muted)}
+#hof-list .ti-row{padding:7px 9px}
+#hof-list .ti-row+.ti-row{margin-top:5px}
+#hof-list .ti-meta{margin-top:2px}
+#hof-list .ti-meta2{margin-top:2px}
+.hof-pager{display:flex;align-items:center;gap:4px;justify-content:center;flex-wrap:wrap;margin-top:2px}
+.hof-pg{min-width:28px;height:26px;padding:0 8px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--muted);font-size:.7rem;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.hof-pg:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.hof-pg.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.hof-pg:disabled{opacity:.35;cursor:default}
+.hof-pg-info{font-size:.66rem;color:var(--dim);margin-left:6px}
+/* podium */
+.hof-podium{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px 14px 20px;margin-bottom:18px;position:relative;overflow:hidden}
+.hof-podium::before{content:'';position:absolute;top:-70px;left:50%;transform:translateX(-50%);width:240px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(251,191,36,.12),transparent 70%);pointer-events:none}
+.hof-podium-title{text-align:center;font-size:.63rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;position:relative}
+.hof-podium-steps{display:flex;align-items:flex-end;justify-content:center;gap:12px;flex-wrap:wrap;position:relative}
+.hof-step{display:flex;flex-direction:column;align-items:center;gap:6px;width:min(30%,270px)}
+.hof-step-1{order:2}
+.hof-step-2{order:1}
+.hof-step-3{order:3}
+.hof-step-medal{font-size:1.6rem;line-height:1;filter:drop-shadow(0 4px 10px rgba(251,191,36,.3))}
+.hof-step-card{width:100%;text-align:center;background:var(--surface);border:1px solid var(--bd);border-radius:12px;padding:11px 10px 12px}
+.hof-step-1 .hof-step-card{border-color:rgba(251,191,36,.45);background:linear-gradient(180deg,rgba(251,191,36,.10),rgba(108,111,245,.05));padding-top:16px;padding-bottom:16px}
+.hof-step-1 .hof-step-medal{font-size:2.3rem}
+.hof-step-name{font-size:.9rem;font-weight:800;letter-spacing:-.01em;word-break:break-word}
+.hof-step-1 .hof-step-name{font-size:1.05rem}
+.hof-step-nim{font-size:.66rem;color:var(--muted);font-family:var(--mono);margin-top:3px}
+.hof-step-jurusan{font-size:.68rem;color:var(--muted);margin-top:2px}
+.hof-step-poin{font-size:.72rem;color:var(--muted);margin-top:7px}
+.hof-step-poin b{color:var(--gold);font-weight:800;font-size:.85rem}
+.hof-step-level{font-size:.62rem;font-weight:700;color:var(--gold);margin-top:4px}
+.hof-step-lomba{margin-top:8px;padding-top:7px;border-top:1px solid var(--bd);display:flex;flex-direction:column;gap:3px;text-align:left}
+.hof-step-item{display:flex;align-items:center;gap:5px;font-size:.64rem;color:var(--muted)}
+.hof-step-item em{font-style:normal;font-size:.58rem;opacity:.7}
+.hof-more{margin-top:8px;display:inline-flex;align-items:center;gap:4px;padding:3px 11px;border-radius:99px;border:1px solid var(--bd);background:var(--surface);color:var(--accent);font-size:.66rem;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.hof-more:hover{border-color:var(--accent);background:rgba(108,111,245,.1)}
+/* chip "Lainnya (n)" di dalam kartu podium */
+.hof-step-lomba .hof-more{align-self:flex-start;margin-top:5px}
+.hof-detail-list{display:flex;flex-direction:column;gap:8px}
+.hof-detail-row{display:flex;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--bd);border-radius:9px;background:var(--card)}
+.hof-detail-nama{flex:1;min-width:0;font-size:.8rem;font-weight:600;color:var(--text)}
+.hof-medal-sm{font-size:.85rem;flex-shrink:0}
+.hof-rows{display:flex;flex-direction:column;gap:8px}
+.hof-row-item{display:grid;grid-template-columns:1fr 52px 104px auto;gap:6px;align-items:center}
+.hof-row-item .hof-row-teks{grid-column:1}
+.hof-row-item .hof-row-juara{grid-column:2}
+.hof-row-item .hof-row-level{grid-column:3}
+.hof-row-item .hof-row-del{grid-column:4}
+
+.ti-meta2{font-size:.62rem;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── Empty ── */
+.hof-empty{background:var(--card);border:1px dashed var(--bd);border-radius:14px;padding:38px 20px;text-align:center;color:var(--dim);font-size:.82rem;line-height:1.7}
+
+.toast{position:fixed;right:18px;bottom:18px;z-index:200;background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:10px 16px;font-size:.76rem;color:var(--text);box-shadow:0 6px 20px rgba(0,0,0,.3);opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.err{border-color:var(--red);color:var(--red)}
+.loading{position:fixed;inset:0;z-index:150;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;transition:opacity .3s}
+.loading.hide{opacity:0;pointer-events:none}
+.loading-txt{font-size:.75rem;color:var(--dim)}
+
+@media(max-width:600px){
+  .nav{padding:8px 12px;gap:8px}
+  .nav-title{font-size:.8rem}
+  .hof-view{padding:14px 12px 24px}
+  .hof-grid{grid-template-columns:1fr}
+  .hof-search{width:100%}
+}
+
+/* ══════════════════════════════════════════════════════════════
+   POLISH DESAIN (hanya tampilan — tanpa ubah warna & struktur)
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Dasar ── */
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;line-height:1.5}
+::selection{background:var(--accent);color:#fff}
+*{scrollbar-width:thin;scrollbar-color:var(--bd) transparent}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--dim)}
+button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ── Nav ── */
+.nav{
+  gap:12px;padding:12px 24px;
+  box-shadow:0 6px 24px rgba(0,0,0,.18);
+  position:relative;z-index:5;
+}
+[data-theme="light"] .nav{box-shadow:0 6px 24px rgba(20,20,50,.08)}
+.nav-title{font-size:.95rem;font-weight:800;letter-spacing:-.02em}
+.nav-back{
+  padding:6px 14px;border-radius:9px;background:var(--card);
+  transition:color .15s,border-color .15s,transform .15s;
+}
+.nav-back:hover{transform:translateY(-1px)}
+.nav-role-badge{padding:4px 11px;border-radius:99px;letter-spacing:.07em}
+.theme-btn{width:34px;height:34px;border-radius:10px;transition:background .2s,color .2s,transform .2s,border-color .2s}
+.theme-btn:hover{transform:translateY(-1px) rotate(8deg)}
+
+/* ── Area konten (dipusatkan & lega) ── */
+.hof-view{padding:24px 24px 44px}
+.hof-view>*{max-width:1080px;margin-left:auto;margin-right:auto}
+
+/* ── Header halaman ── */
+.hof-head{margin-bottom:20px}
+.hof-title{font-size:1.5rem;letter-spacing:-.035em}
+.hof-sub{
+  display:inline-flex;margin-top:9px;padding:4px 12px;border-radius:99px;
+  background:var(--surface);border:1px solid var(--bd);font-size:.7rem;font-weight:600;
+}
+
+/* ── Tombol umum ── */
+.lomba-btn{
+  padding:9px 15px;border-radius:11px;
+  transition:border-color .15s,color .15s,background .15s,transform .15s,box-shadow .15s;
+}
+.lomba-btn:hover{transform:translateY(-1px)}
+.hof-view>.lomba-btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-color:transparent;color:#fff;font-weight:700;
+  box-shadow:0 8px 20px rgba(108,111,245,.28);
+}
+.hof-view>.lomba-btn:hover{color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));filter:brightness(1.07);box-shadow:0 10px 26px rgba(108,111,245,.4)}
+.lomba-btn.dashed{border-radius:12px;padding:10px 14px}
+.lomba-act{width:28px;height:28px;border-radius:8px;background:var(--surface);transition:all .15s}
+.lomba-act:hover{transform:translateY(-1px)}
+
+/* ── Toolbar filter ── */
+.hof-bar{
+  gap:10px;margin-bottom:18px;padding:12px 14px;
+  background:var(--surface);border:1px solid var(--bd);border-radius:14px;
+}
+.hof-rank-select,.hof-search{
+  padding:9px 13px;border-radius:11px;background:var(--card);font-size:.78rem;
+  transition:border-color .15s,box-shadow .2s;
+}
+.hof-search{flex:1;min-width:180px}
+.hof-rank-select:focus,.hof-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,111,245,.16)}
+
+/* ── Podium ── */
+.hof-podium{
+  border-radius:22px;padding:24px 20px 28px;margin-bottom:24px;
+  background:linear-gradient(160deg,var(--card) 0%,var(--surface) 130%);
+  box-shadow:0 16px 44px rgba(0,0,0,.28);
+}
+[data-theme="light"] .hof-podium{box-shadow:0 16px 44px rgba(20,20,50,.1)}
+.hof-podium::before{width:380px;height:240px;top:-100px}
+.hof-podium-title{font-size:.7rem;letter-spacing:.22em;margin-bottom:20px}
+.hof-podium-steps{gap:16px}
+.hof-step{gap:9px;animation:hofRise .6s cubic-bezier(.2,.9,.3,1) both}
+.hof-step-2{animation-delay:.1s}
+.hof-step-3{animation-delay:.2s}
+@keyframes hofRise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.hof-step-medal{filter:drop-shadow(0 6px 14px rgba(251,191,36,.4))}
+.hof-step-1 .hof-step-medal{animation:hofFloat 2.4s ease-in-out infinite}
+@keyframes hofFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.hof-step-card{
+  border-radius:16px;padding:14px 13px 15px;
+  box-shadow:0 10px 26px rgba(0,0,0,.2);
+  transition:transform .2s,box-shadow .25s,border-color .2s;
+}
+.hof-step-card:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.3)}
+.hof-step-1 .hof-step-card{
+  padding-top:22px;padding-bottom:22px;
+  box-shadow:0 18px 44px rgba(251,191,36,.16),0 0 0 1px rgba(251,191,36,.2);
+}
+.hof-step-name{font-size:.95rem}
+.hof-step-1 .hof-step-name{font-size:1.15rem}
+.hof-step-poin b{font-size:1rem}
+.hof-step-level{
+  display:inline-block;padding:2px 10px;border-radius:99px;margin-top:7px;
+  background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);
+}
+.hof-step-lomba{margin-top:11px;padding-top:10px;gap:5px}
+.hof-step-item{font-size:.68rem}
+
+/* ── Kartu entri ── */
+.hof-grid{gap:16px}
+.hof-card{
+  border-radius:18px;padding:18px 20px 19px;
+  background:linear-gradient(160deg,var(--card) 0%,var(--surface) 130%);
+  box-shadow:0 8px 22px rgba(0,0,0,.14);
+  transition:border-color .2s,transform .2s,box-shadow .25s;
+}
+[data-theme="light"] .hof-card{box-shadow:0 8px 22px rgba(20,20,50,.07)}
+.hof-card:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(0,0,0,.26)}
+[data-theme="light"] .hof-card:hover{box-shadow:0 16px 36px rgba(20,20,50,.13)}
+.hof-medal{
+  width:36px;height:36px;font-size:1.2rem;
+  box-shadow:0 6px 16px rgba(0,0,0,.2);
+}
+.hof-card-name{font-size:1.02rem}
+.hof-card-nim{
+  display:inline-block;padding:2px 9px;border-radius:7px;margin-top:11px;
+  background:var(--surface);border:1px solid var(--bd);
+}
+.hof-card-jurusan{margin-top:7px}
+.hof-card-lomba{margin-top:14px;padding-top:12px}
+.hof-card-lomba>div{margin-top:7px}
+
+/* ── Tombol "Lihat semua" ── */
+.hof-more{padding:5px 13px;margin-top:10px;transition:all .15s}
+.hof-more:hover{transform:translateY(-1px)}
+
+/* ── Detail & daftar kelola ── */
+.hof-detail-row{padding:11px 13px;border-radius:12px;transition:border-color .15s,transform .15s}
+.hof-detail-row:hover{border-color:var(--accent);transform:translateY(-1px)}
+.hof-badge{
+  flex-shrink:0;padding:2px 10px;border-radius:99px;font-size:.62rem;font-weight:700;
+  background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);color:var(--gold);
+}
+.ti-row{display:flex;align-items:center;gap:8px;border:1px solid var(--bd);border-radius:12px;background:var(--card);transition:border-color .15s,transform .15s}
+.ti-row:hover{border-color:var(--accent);transform:translateY(-1px)}
+#hof-list .ti-row{padding:10px 12px}
+.ti-info{flex:1;min-width:0}
+.ti-name{font-size:.84rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ti-meta{font-size:.64rem;color:var(--muted)}
+.ti-acts{display:flex;gap:4px;flex-shrink:0}
+.hof-pager{margin-top:8px}
+.hof-pg{min-width:30px;height:30px;border-radius:9px}
+.hof-pg:hover:not(:disabled){transform:translateY(-1px)}
+.hof-pg.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;box-shadow:0 6px 16px rgba(108,111,245,.34)}
+
+/* ── Empty ── */
+.hof-empty{border-radius:20px;padding:52px 24px;font-size:.85rem}
+
+/* ── Modal ── */
+.modal-overlay{background:rgba(0,0,0,.6);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);animation:hofFade .2s ease both}
+.modal-box{
+  max-width:480px;border-radius:20px;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+  animation:hofPop .28s cubic-bezier(.2,.9,.3,1) both;
+}
+@keyframes hofFade{from{opacity:0}to{opacity:1}}
+@keyframes hofPop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.modal-head{padding:18px 22px 14px}
+.modal-title{font-size:.98rem;letter-spacing:-.02em}
+.modal-close{width:30px;height:30px;border-radius:9px}
+.modal-body{padding:20px 22px;gap:16px}
+.form-label{font-size:.66rem;letter-spacing:.09em}
+.form-input,.form-select,.form-textarea{
+  padding:10px 13px;border-radius:11px;
+  transition:border-color .15s,box-shadow .2s,background .25s;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,111,245,.16)}
+.modal-foot{padding:14px 22px 20px;gap:10px}
+.btn-cancel{padding:9px 18px;border-radius:11px}
+.btn-cancel:hover{border-color:var(--muted)}
+.btn-save{
+  padding:9px 22px;border-radius:11px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 8px 20px rgba(108,111,245,.3);
+  transition:transform .15s,box-shadow .15s,filter .15s;
+}
+.btn-save:hover{background:linear-gradient(135deg,var(--accent),var(--accent2));filter:brightness(1.07);transform:translateY(-1px);box-shadow:0 10px 26px rgba(108,111,245,.42)}
+.btn-save:active{transform:translateY(1px)}
+
+/* ── Gate (kode akses) ── */
+.gate::before,.gate::after{
+  content:"";position:absolute;width:480px;height:480px;border-radius:50%;
+  filter:blur(110px);opacity:.15;pointer-events:none;
+}
+.gate::before{background:var(--accent);top:-160px;left:-120px}
+.gate::after{background:var(--accent2);bottom:-180px;right:-100px}
+.gate-box{
+  position:relative;max-width:360px;padding:36px 32px 28px;border-radius:22px;
+  background:linear-gradient(160deg,var(--card) 0%,var(--surface) 130%);
+  animation:hofPop .5s cubic-bezier(.2,.9,.3,1) both;
+}
+.gate-ico{font-size:2.2rem;margin-bottom:12px;filter:drop-shadow(0 6px 14px rgba(251,191,36,.45))}
+.gate-title{font-size:1.25rem}
+.gate-sub{margin:6px 0 24px;font-size:.74rem}
+.gate-input{padding:13px 42px 13px 16px;border-radius:13px;transition:border-color .15s,box-shadow .2s}
+.gate-input:focus{box-shadow:0 0 0 4px rgba(108,111,245,.18)}
+.gate-btn{
+  padding:13px;border-radius:13px;font-size:.86rem;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 12px 28px rgba(108,111,245,.34);
+  transition:transform .15s,box-shadow .15s,filter .15s;
+}
+.gate-btn:hover{background:linear-gradient(135deg,var(--accent),var(--accent2));filter:brightness(1.07);transform:translateY(-2px);box-shadow:0 16px 34px rgba(108,111,245,.46)}
+.gate-btn:active{transform:translateY(1px)}
+
+/* ── Toast & Loading ── */
+.toast{border-radius:12px;padding:12px 18px;font-weight:600;box-shadow:0 12px 32px rgba(0,0,0,.35)}
+.loading>div:first-child{animation:hofFloat 1.6s ease-in-out infinite;filter:drop-shadow(0 8px 18px rgba(251,191,36,.5))}
+
+/* ── Perangkat sentuh ── */
+@media(hover:none){
+  .hof-card:hover,.hof-step-card:hover{transform:none}
+}
+
+/* ── Responsif ── */
+@media(max-width:700px){
+  .hof-podium-steps{flex-direction:column;align-items:center;gap:14px}
+  .hof-step{width:100%;max-width:340px}
+  .hof-step-1{order:1}
+  .hof-step-2{order:2}
+  .hof-step-3{order:3}
+}
+@media(max-width:600px){
+  .nav{padding:10px 12px}
+  .hof-view{padding:16px 12px 30px}
+  .hof-title{font-size:1.25rem}
+  .hof-bar{padding:10px 12px}
+  .hof-podium{padding:20px 14px 22px;border-radius:18px}
+  .hof-card{padding:16px 16px 17px}
+  .hof-row-item{grid-template-columns:1fr 52px 92px auto}
+  .modal-box{border-radius:18px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+/* ══ Tombol "Kelola Hall of Fame" sejajar di kiri filter "Semua Peringkat" ══ */
+.hof-view{
+  display:flex;flex-wrap:wrap;align-content:flex-start;align-items:stretch;
+  padding-left:max(24px,calc((100% - 1080px)/2));
+  padding-right:max(24px,calc((100% - 1080px)/2));
+}
+.hof-view>*{max-width:none;margin-left:0;margin-right:0;flex:0 0 100%;min-width:0}
+
+/* tombol di kiri, mengikuti tinggi panel filter */
+.hof-view>.lomba-btn{
+  flex:0 0 auto;align-self:stretch;justify-content:center;
+  margin:0 12px 18px 0!important;   /* menimpa margin inline di JS */
+  padding:0 20px;border-radius:14px;
+}
+
+/* panel filter mengisi sisa ruang di sebelah kanan tombol */
+.hof-view>.lomba-btn+.hof-bar{flex:1 1 0}
+
+@media(max-width:600px){
+  .hof-view{padding-left:12px;padding-right:12px}
+  .hof-view>.lomba-btn{flex:0 0 100%;margin:0 0 10px 0!important;padding:11px 16px}
+  .hof-view>.lomba-btn+.hof-bar{flex:0 0 100%}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="lomba.html" class="nav-back">‹ Lomba</a>
+  <span class="nav-title">🏅 Hall of Fame</span>
+  <span class="nav-spacer"></span>
+  <span id="roleBadge" class="nav-role-badge viewer">Viewer</span>
+  <button id="adminBtn" class="theme-btn" title="Mode superadmin">🔑</button>
+  <button id="themeBtn" class="theme-btn" title="Ganti tema">🌙</button>
+</nav>
+
+<!-- Gate: wajib kode akses -->
+<div id="gate" class="gate hidden">
+  <div class="gate-box">
+    <div class="gate-ico">🏅</div>
+    <div class="gate-title">Aliria Lomba</div>
+    <div class="gate-sub">Masukkan kode akses untuk melanjutkan</div>
+    <div class="gate-wrap">
+      <input type="password" id="gateInput" class="gate-input" placeholder="••••••••" maxlength="20" autocomplete="off" inputmode="numeric"/>
+      <button class="gate-eye" id="gateEye" tabindex="-1" title="Lihat kode">👁</button>
+    </div>
+    <button class="gate-btn" id="gateBtn">Masuk</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal hidden">
+  <div class="modal-overlay" id="modalOverlay"></div>
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title" id="modalTitle">—</span>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn-cancel" id="modalCancel">Batal</button>
+      <button class="btn-save" id="modalSave">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<main class="hof-view" id="hofArea"></main>
+<div id="toast" class="toast"></div>
+
+<div id="loading" class="loading">
+  <div style="font-size:1.6rem">🏅</div>
+  <div class="loading-txt">Memuat hall of fame…</div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════════ */
+const PASS_ADMIN   = '19950328';
+const PASS_VIEW    = '20251208';
+const GIST_ID      = '6bf5ebb0397393324168d3dd14c018c';
+const GIST_FILE    = 'alteco-data.json';
+const LS_KEY       = 'alteco_hof_page_v1';   /* cache lokal halaman ini */
+const ROLE_KEY     = 'rak_alteco_role';      /* SAMA dgn app todolist & lomba.html */
+const HOF_MEDALS   = {1:'🥇',2:'🥈',3:'🥉'};
+const HOF_MAX_SHOW = 3;   /* maksimal lomba yang ditampilkan langsung di kartu */
+const HOF_PODIUM_MAX = 5; /* maksimal lomba di kartu podium; sisanya lewat chip "Lainnya (n)" */
+const HOF_PER_PAGE = 4;   /* entri per halaman di modal Kelola Hall of Fame */
+const WORKER_URL  = 'https://alteco-writer.dionisiusn1.workers.dev';
+
+/* ══════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════ */
+let db       = {lombas:[],hallOfFame:[]};
+let role     = 'viewer';
+let hofRank  = 0;      /* 0 = semua */
+let hofQuery = '';
+let hofPage = 1;
+let _toastTimer=null;
+
+/* ══════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════ */
+function touch(item){ item.updatedAt=Date.now(); return item; }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+/* normHof dengan migrasi ke daftar baris lomba */
+/* ── Baris lomba (1 anak bisa punya > 1 lomba) ── */
+/* ── Tingkat lomba & sistem poin ── */
+const HOF_LEVELS=[
+  {v:'kota',label:'Kota',w:1},
+  {v:'provinsi',label:'Provinsi',w:2},
+  {v:'nasional',label:'Nasional',w:5},
+  {v:'internasional',label:'Internasional',w:10},
+  {v:'lainnya',label:'Lainnya',w:1}
+];
+function hofLevel(v){ return HOF_LEVELS.find(l=>l.v===v)||HOF_LEVELS[HOF_LEVELS.length-1]; }
+function hofLevelLabel(v){ return hofLevel(v).label; }
+function hofPoin(r){ const rank=(r&&r.juara===1)?3:(r&&r.juara===2)?2:1; return rank*hofLevel(r&&r.level).w; }
+let hofRows=[];
+/* ubah data lama (lomba: "X" / juara: N) → daftar baris */
+function hofRowsFrom(h){
+  let src=[];
+  if(Array.isArray(h?.lomba)) src=h.lomba;
+  else if(typeof h?.lomba==='string'&&h.lomba.trim()) src=[{lomba:h.lomba.trim(),juara:h?.juara||1}];
+  return src.map(r=>(typeof r==='string'
+      ? {lomba:r.trim(),juara:1,level:'lainnya'}
+      : {lomba:String(r.lomba||'').trim(),juara:[1,2,3].includes(r.juara)?r.juara:1,level:hofLevel(r.level).v}))
+    .filter(r=>r.lomba);
+}
+function hofPodium(list){
+  const calc=list.map(h=>{
+    const rows=(h.lomba||[]).filter(r=>r&&r.lomba);
+    if(!rows.length) return null;
+    const poin=rows.reduce((s,r)=>s+hofPoin(r),0);
+    const jumlah=rows.length;
+    const emas=rows.filter(r=>r.juara===1).length;
+    const suara=rows.reduce((s,r)=>s+(r.likes||0),0);
+    const levelTop=rows.slice().sort((a,b)=>hofLevel(b.level).w-hofLevel(a.level).w)[0].level;
+    return {h,poin,jumlah,emas,suara,levelTop,rows};
+  }).filter(Boolean);
+  calc.sort((a,b)=>(b.poin-a.poin)||(b.emas-a.emas)||(b.suara-a.suara)||String(a.h.nama||'').localeCompare(String(b.h.nama||''),'id'));
+  return calc.slice(0,3).map((x,i)=>({...x,pos:i+1}));
+}
+function hofBestRank(h){
+  const rs=(h?.lomba||[]).filter(r=>r&&r.lomba);
+  if(!rs.length) return 1;
+  return Math.min(...rs.map(r=>r.juara||1));
+}
+function renderHofRows(){
+  const box=document.getElementById('hof-lomba-rows');
+  if(!box) return;
+  box.innerHTML=hofRows.map((r,i)=>`
+    <div class="hof-row-item" data-i="${i}">
+      <input class="form-input hof-row-teks" type="text" value="${esc(r.lomba)}" placeholder="Nama lomba" maxlength="120"/>
+      <select class="form-select hof-row-juara" title="Peringkat">
+        <option value="1"${r.juara===1?' selected':''}>🥇</option>
+        <option value="2"${r.juara===2?' selected':''}>🥈</option>
+        <option value="3"${r.juara===3?' selected':''}>🥉</option>
+      </select>
+      <select class="form-select hof-row-level" title="Tingkat lomba">
+        ${HOF_LEVELS.map(l=>`<option value="${l.v}"${r.level===l.v?' selected':''}>${l.label}</option>`).join('')}
+      </select>
+      <button type="button" class="lomba-act del hof-row-del" title="Hapus baris">✕</button>
+    </div>`).join('');
+  box.querySelectorAll('.hof-row-item').forEach(item=>{
+    const i=+item.dataset.i;
+    const inp=item.querySelector('.hof-row-teks');
+    const ju=item.querySelector('.hof-row-juara');
+    const lv=item.querySelector('.hof-row-level');
+    inp.addEventListener('input',()=>{ hofRows[i].lomba=inp.value; });
+    ju.addEventListener('change',e=>{ hofRows[i].juara=+e.target.value; });
+    lv.addEventListener('change',e=>{ hofRows[i].level=e.target.value; });
+    item.querySelector('.hof-row-del').addEventListener('click',()=>{ hofRows.splice(i,1); renderHofRows(); });
+  });
+}
+
+function normHof(h){
+  if(!h) return null;
+  const nama=String(h.nama||'').trim();
+  if(!nama) return null;
+  const lamaArray=Array.isArray(h.lomba);
+  const rows=hofRowsFrom(h);
+  const out={
+    id:h.id||uid(),
+    nama,
+    nim:String(h.nim||'').trim(),
+    jurusan:String(h.jurusan||'').trim(),
+    lomba:rows,
+    createdAt:h.createdAt||0,
+    updatedAt:h.updatedAt||0
+  };
+  if(h.deleted) out.deleted=true;
+  /* data bentuk lama → sudah dimigrasi → sentuh updatedAt supaya tidak ditimpa device lain */
+  if(!lamaArray&&rows.length) out.updatedAt=Date.now();
+  return out;
+}
+function mergeArrClient(a=[],b=[]){
+  const map=new Map();
+  for(const x of a) map.set(x.id,x);
+  for(const x of b){ const ex=map.get(x.id); if(!ex||(x.updatedAt||0)>=(ex.updatedAt||0)) map.set(x.id,x); }
+  const bIds=new Set(b.map(x=>x.id));
+  return [...b.map(x=>map.get(x.id)).filter(Boolean),...[...map.values()].filter(x=>!bIds.has(x.id))];
+}
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function isAdmin(){ return role==='admin'; }
+function toast(msg,isErr){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show'+(isErr?' err':'');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>{t.className='toast';},2600);
+}
+
+/* ══════════════════════════════════════════
+   DATA (Gist + cache lokal — read only)
+   ══════════════════════════════════════════ */
+function localLoad(){
+  try{
+    const d=JSON.parse(localStorage.getItem(LS_KEY));
+    if(d&&(Array.isArray(d.lombas)||Array.isArray(d.hallOfFame))) return d;
+  }catch{}
+  return null;
+}
+async function gistLoad(){
+  const r=await fetch(`https://api.github.com/gists/${GIST_ID}`,{cache:'no-store',headers:{'Accept':'application/vnd.github+json'}});
+  if(!r.ok) throw new Error('gist fetch '+r.status);
+  const gist=await r.json();
+  const content=gist.files[GIST_FILE]?.content;
+  if(!content) return null;
+  return JSON.parse(content);
+}
+async function loadDb(){
+  const local=localLoad();
+  try{
+    const remote=await gistLoad();
+    db=remote||local||{lombas:[],hallOfFame:[]};
+  }catch(e){
+    console.warn('Gist load failed, pakai cache lokal',e);
+    db=local||{lombas:[],hallOfFame:[]};
+  }
+  if(!Array.isArray(db.lombas)) db.lombas=[];
+  if(!Array.isArray(db.hallOfFame)) db.hallOfFame=[];
+  db.hallOfFame=db.hallOfFame.map(normHof).filter(Boolean);
+  try{ localStorage.setItem(LS_KEY,JSON.stringify(db)); }catch{}
+}
+
+/* ══════════════════════════════════════════
+   SIMPAN (hanya untuk entri hall of fame)
+   ══════════════════════════════════════════ */
+let _saveTimer=null;
+function save(){
+  try{ localStorage.setItem(LS_KEY,JSON.stringify(db)); }catch{}
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>doSave(),300);
+}
+async function doSave(){
+  try{
+    if(!WORKER_URL) return;
+    let remote=null;
+    try{ remote=await gistLoad(); }catch{}
+    if(remote){
+      db={...remote, hallOfFame:mergeArrClient(remote.hallOfFame||[],db.hallOfFame||[])};
+      if(!Array.isArray(db.hallOfFame)) db.hallOfFame=[];
+      db.hallOfFame=db.hallOfFame.map(normHof).filter(Boolean);
+      try{ localStorage.setItem(LS_KEY,JSON.stringify(db)); }catch{}
+    }
+    const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(db)});
+    if(!r.ok) throw new Error('worker '+r.status);
+  }catch(e){
+    console.warn('Save failed',e);
+    toast('Gagal menyimpan — cek koneksi',true);
+  }
+}
+window.addEventListener('beforeunload',()=>{
+  try{ navigator.sendBeacon(WORKER_URL,new Blob([JSON.stringify(db)],{type:'application/json'})); }catch{}
+});
+
+/* ══════════════════════════════════════════
+   ROLE & TEMA
+   ══════════════════════════════════════════ */
+function applyRole(){
+  const badge=document.getElementById('roleBadge');
+  if(isAdmin()){ badge.textContent='Superadmin'; badge.className='nav-role-badge admin'; }
+  else { badge.textContent='Viewer'; badge.className='nav-role-badge viewer'; }
+  const btn=document.getElementById('adminBtn');
+  btn.textContent=isAdmin()?'🚪':'🔑';
+  btn.title=isAdmin()?'Keluar dari mode superadmin':'Masuk sebagai superadmin';
+}
+function applyTheme(){
+  const html=document.documentElement;
+  let light=false;
+  try{ light=localStorage.getItem('theme')==='light'; }catch{}
+  if(light) html.setAttribute('data-theme','light'); else html.removeAttribute('data-theme');
+  const b=document.getElementById('themeBtn');
+  if(b) b.textContent=light?'🌙':'☀️';
+}
+function toggleTheme(){
+  const html=document.documentElement;
+  const isLight=html.getAttribute('data-theme')==='light';
+  if(isLight){ html.removeAttribute('data-theme'); try{localStorage.setItem('theme','dark');}catch{} }
+  else { html.setAttribute('data-theme','light'); try{localStorage.setItem('theme','light');}catch{} }
+  applyTheme();
+}
+applyTheme();
+document.getElementById('themeBtn').addEventListener('click',toggleTheme);
+window.addEventListener('storage',e=>{ if(e.key==='theme'||e.key===null) applyTheme(); });
+window.addEventListener('focus',applyTheme);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) applyTheme(); });
+
+/* role dari parent (landing) */
+window.addEventListener('message',e=>{
+  const d=(e&&e.data)||{};
+  if(d.type!=='alteco-role'||!d.role) return;
+  if(e.origin && e.origin!=='null' && e.origin!==location.origin) return;
+  role=(d.role==='admin')?'admin':'viewer';
+  applyRole();
+  try{ document.getElementById('gate').classList.add('hidden'); }catch{}
+  render();
+});
+
+/* ══════════════════════════════════════════
+   GATE — wajib kode akses
+   ══════════════════════════════════════════ */
+function getStoredRole(){ try{ return sessionStorage.getItem(ROLE_KEY)||''; }catch{ return ''; } }
+(function initGate(){
+  const inp=document.getElementById('gateInput');
+  const err=document.getElementById('gateErr');
+  document.getElementById('gateEye').addEventListener('click',()=>{
+    inp.type=inp.type==='password'?'text':'password';
+  });
+  function attempt(){
+    const val=inp.value.trim();
+    if(val===PASS_ADMIN||val===PASS_VIEW){
+      try{ sessionStorage.setItem(ROLE_KEY,val===PASS_ADMIN?'admin':'viewer'); }catch{}
+      role=val===PASS_ADMIN?'admin':'viewer';
+      applyRole();
+      document.getElementById('gate').classList.add('hidden');
+      render();
+      return;
+    }
+    err.textContent='Kode akses tidak valid.';
+    inp.classList.add('error');
+    setTimeout(()=>inp.classList.remove('error'),1600);
+    inp.value='';
+  }
+  document.getElementById('gateBtn').addEventListener('click',attempt);
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') attempt(); });
+})();
+
+
+/* ══════════════════════════════════════════
+   MODAL
+   ══════════════════════════════════════════ */
+let mMode=null, mCtx=null;
+function openModal(mode,ctx){
+  mMode=mode; mCtx=ctx||{};
+  const modal=document.getElementById('modal');
+  const title=document.getElementById('modalTitle');
+  const body=document.getElementById('modalBody');
+  document.getElementById('modalSave').style.display='';
+  modal.classList.remove('hidden');
+
+  if(mode==='hof-list'){
+    title.textContent='Kelola Hall of Fame';
+    document.getElementById('modalSave').style.display='none';
+    document.getElementById('modalCancel').textContent='Tutup';
+    body.innerHTML=`
+      <button type="button" class="lomba-btn dashed" id="hof-tambah" style="width:100%;justify-content:center">＋ Tambah Entri</button>
+      <div id="hof-list"></div>
+      <div id="hof-pager"></div>
+    `;
+    document.getElementById('hof-tambah').addEventListener('click',()=>openModal('hof-add',{}));
+    renderHofList();
+  }
+
+  else if(mode==='hof-detail'){
+    const hEnt=(db.hallOfFame||[]).find(x=>x.id===ctx.id);
+    const rows=(hEnt?.lomba||[]).slice().sort((a,b)=>(a.juara||1)-(b.juara||1));
+    title.textContent=`${hEnt?.nama||'Juara'} — ${rows.length} lomba`;
+    document.getElementById('modalSave').style.display='none';
+    document.getElementById('modalCancel').textContent=(ctx.from==='list')?'← Daftar':'Tutup';
+    body.innerHTML=`
+      <div class="hof-detail-list">
+        ${rows.map(r=>`<div class="hof-detail-row"><span class="hof-medal-sm">${HOF_MEDALS[r.juara]||'🏅'}</span><span class="hof-detail-nama">${esc(r.lomba)}</span><span class="hof-badge">Juara ${r.juara}</span></div>`).join('')}
+      </div>`;
+  }
+
+  else if(mode==='hof-add'||mode==='hof-edit'){
+    const h=mode==='hof-edit'?(db.hallOfFame||[]).find(x=>x.id===ctx.id):null;
+    title.textContent=mode==='hof-add'?'Tambah Entri Hall of Fame':'Edit Entri Hall of Fame';
+    document.getElementById('modalCancel').textContent='← Daftar';
+    body.innerHTML=`
+      <div class="form-group">
+        <label class="form-label">Nama *</label>
+        <input class="form-input" id="fi-hof-nama" type="text" value="${esc(h?.nama||'')}" placeholder="Nama orang atau tim" maxlength="80"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">NIM <span style="font-size:.65rem;color:var(--dim);font-weight:400">(opsional)</span></label>
+        <input class="form-input" id="fi-hof-nim" type="text" value="${esc(h?.nim||'')}" placeholder="Contoh: 221011234" maxlength="30"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jurusan <span style="font-size:.65rem;color:var(--dim);font-weight:400">(opsional)</span></label>
+        <input class="form-input" id="fi-hof-jurusan" type="text" value="${esc(h?.jurusan||'')}" placeholder="Contoh: Teknik Informatika" maxlength="60"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Lomba yang dijuarai *</label>
+        <div id="hof-lomba-rows" class="hof-rows"></div>
+        <button type="button" class="lomba-btn dashed" id="hof-lomba-add" style="width:100%;justify-content:center;margin-top:8px">＋ Tambah Lomba</button>
+      </div>
+    `;
+    /* baris lomba: 1 anak bisa punya beberapa lomba */
+    hofRows=hofRowsFrom(h);
+    if(!hofRows.length) hofRows=[{lomba:'',juara:1}];
+    renderHofRows();
+    document.getElementById('hof-lomba-add').addEventListener('click',()=>{
+      hofRows.push({lomba:'',juara:1});
+      renderHofRows();
+    });
+    document.getElementById('fi-hof-nama').focus();
+  }
+}
+function closeModal(){
+  document.getElementById('modal').classList.add('hidden');
+  document.getElementById('modalSave').textContent='Simpan';
+  document.getElementById('modalCancel').textContent='Batal';
+  mMode=null; mCtx=null;
+}
+document.getElementById('modalClose').addEventListener('click',closeModal);
+document.getElementById('modalCancel').addEventListener('click',()=>{
+  if(mMode==='hof-add'||mMode==='hof-edit'){ openModal('hof-list',{}); return; }
+  if(mMode==='hof-detail'&&mCtx.from==='list'){ openModal('hof-list',{}); return; }
+  closeModal();
+});
+document.getElementById('modalOverlay').addEventListener('click',closeModal);
+document.getElementById('modal').addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+document.getElementById('modalSave').addEventListener('click',()=>{
+  if(!mMode) return;
+  if(mMode==='hof-add'||mMode==='hof-edit'){
+    const nama_v=(document.getElementById('fi-hof-nama')?.value||'').trim();
+    if(!nama_v){ toast('Nama wajib diisi',true); return; }
+    const rows=hofRows.map(r=>({lomba:String(r.lomba||'').trim(),juara:[1,2,3].includes(r.juara)?r.juara:1,level:hofLevel(r.level).v})).filter(r=>r.lomba);
+    if(!rows.length){ toast('Isi minimal 1 lomba yang dijuarai',true); return; }
+    const nim_v=(document.getElementById('fi-hof-nim')?.value||'').trim();
+    const jurusan_v=(document.getElementById('fi-hof-jurusan')?.value||'').trim();
+    if(!Array.isArray(db.hallOfFame)) db.hallOfFame=[];
+    if(mMode==='hof-add'){
+      db.hallOfFame.push(touch({id:uid(),nama:nama_v,nim:nim_v,jurusan:jurusan_v,lomba:rows,createdAt:Date.now()}));
+    } else {
+      const h2=db.hallOfFame.find(x=>x.id===mCtx.id);
+      if(!h2) return;
+      h2.nama=nama_v; h2.nim=nim_v; h2.jurusan=jurusan_v; h2.lomba=rows; touch(h2);
+    }
+    if(mMode==='hof-add') hofPage=1;
+    save(); openModal('hof-list',{});
+    toast(mMode==='hof-add'?'Entri ditambahkan':'Entri diperbarui');
+  }
+});
+
+/* ══════════════════════════════════════════
+   RENDER
+   ══════════════════════════════════════════ */
+function hofEntries(){ return (db.hallOfFame||[]).filter(h=>!h.deleted); }
+
+function render(){
+  const area=document.getElementById('hofArea');
+  area.innerHTML='';
+  const isAdmin=role==='admin';
+
+  const all=hofEntries();
+  const c1=all.filter(h=>(h.lomba||[]).some(r=>r.juara===1)).length;
+  const c2=all.filter(h=>(h.lomba||[]).some(r=>r.juara===2)).length;
+  const c3=all.filter(h=>(h.lomba||[]).some(r=>r.juara===3)).length;
+  const jurusanCount=new Set(all.map(h=>h.jurusan).filter(Boolean)).size;
+
+  /* header */
+  const head=document.createElement('div');
+  head.className='hof-head';
+  head.innerHTML=`
+    <div class="hof-title">🏅 Hall of Fame</div>
+    <div class="hof-sub">${all.length} juara · ${jurusanCount} jurusan</div>`;
+  area.appendChild(head);
+
+  /* kelola entri (superadmin) */
+  if(isAdmin){
+    const kbtn=document.createElement('button');
+    kbtn.className='lomba-btn';
+    kbtn.style.cssText='margin-bottom:12px';
+    kbtn.textContent='🏅 Kelola Hall of Fame';
+    kbtn.addEventListener('click',()=>openModal('hof-list',{}));
+    area.appendChild(kbtn);
+  }
+
+  /* filter: dropdown peringkat + pencarian */
+  const bar=document.createElement('div');
+  bar.className='hof-bar';
+  const sel=document.createElement('select');
+  sel.className='hof-rank-select';
+  sel.id='hofRankSel';
+  sel.title='Filter peringkat';
+  sel.innerHTML='<option value="0">Semua Peringkat</option>'
+    +[[1,c1],[2,c2],[3,c3]].map(([r,n])=>'<option value="'+r+'"'+(hofRank===r?' selected':'')+'>'+HOF_MEDALS[r]+' Juara '+r+' ('+n+')</option>').join('');
+  sel.value=String(hofRank);
+  sel.addEventListener('change',e=>{ hofRank=+e.target.value; render(); });
+  bar.appendChild(sel);
+
+  const search=document.createElement('input');
+  search.className='hof-search';
+  search.id='hofSearch';
+  search.placeholder='Cari nama / NIM / jurusan / lomba…';
+  search.value=hofQuery;
+  search.addEventListener('input',e=>{
+    hofQuery=e.target.value;
+    render();
+    const s2=document.getElementById('hofSearch');
+    if(s2){ s2.focus(); try{s2.setSelectionRange(hofQuery.length,hofQuery.length);}catch(err){} }
+  });
+  bar.appendChild(search);
+  area.appendChild(bar);
+
+  /* daftar entri */
+  const q=hofQuery.trim().toLowerCase();
+  const list=all
+    .filter(h=>!hofRank||(h.lomba||[]).some(r=>r.juara===hofRank))
+    .filter(h=>!q||String(h.nama||'').toLowerCase().includes(q)||String(h.nim||'').toLowerCase().includes(q)
+             ||String(h.jurusan||'').toLowerCase().includes(q)
+             ||(h.lomba||[]).some(r=>String(r.lomba||'').toLowerCase().includes(q)))
+    .sort((a,b)=>(hofBestRank(a)-hofBestRank(b))||((b.createdAt||0)-(a.createdAt||0)));
+
+  if(!list.length){
+    const e=document.createElement('div');
+    e.className='hof-empty';
+    e.innerHTML=all.length
+      ? 'Tidak ada entri yang cocok dengan filter/pencarian.'
+      : '🏅 <b>Belum ada entri hall of fame.</b><br>Entri dikelola Superadmin di panel Manajemen Aliria.';
+    area.appendChild(e);
+    return;
+  }
+
+  /* ── Podium: 3 teratas by poin ── */
+  const pod=hofPodium(all);
+  if(pod.length){
+    const podium=document.createElement('div');
+    podium.className='hof-podium';
+    podium.innerHTML=`
+      <div class="hof-podium-title">🏅 PODIUM</div>
+      <div class="hof-podium-steps">
+        ${[pod[1],pod[0],pod[2]].filter(Boolean).map(p=>{
+          const pos=p.pos;
+          /* daftar lomba di kartu podium: urut pirut (🥇→🥉), maks HOF_PODIUM_MAX,
+             sisanya lewat chip "Lainnya (n)" → modal detail semua lomba */
+          const podRows=p.rows.slice().sort((a,b)=>(a.juara||1)-(b.juara||1));
+          const podTampil=podRows.slice(0,HOF_PODIUM_MAX);
+          const podLebih=podRows.length-podTampil.length;
+          return `<div class="hof-step hof-step-${pos}">
+            <div class="hof-step-medal">${['🥇','🥈','🥉'][pos-1]}</div>
+            <div class="hof-step-card">
+              <div class="hof-step-name">${esc(p.h.nama)}</div>
+              <div class="hof-step-nim">${p.h.nim?esc(p.h.nim):'—'}</div>
+              ${p.h.jurusan?`<div class="hof-step-jurusan">${esc(p.h.jurusan)}</div>`:''}
+              <div class="hof-step-poin"><b>${p.poin}</b> poin · ${p.jumlah} juara</div>
+              <div class="hof-step-level">🏅 ${esc(p.levelTop)}</div>
+              <div class="hof-step-lomba">${podTampil.map(r=>`<span class="hof-step-item"><span class="hof-medal-sm">${HOF_MEDALS[r.juara]||'🏅'}</span> ${esc(r.lomba)} <em>${hofLevelLabel(r.level)}</em></span>`).join('')}${podLebih>0?`<button class="hof-more" data-hof-detail="${p.h.id}" title="Lihat semua ${podRows.length} lomba">Lainnya (${podLebih})</button>`:''}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    area.appendChild(podium);
+    podium.querySelectorAll('[data-hof-detail]').forEach(b=>b.addEventListener('click',e=>{
+      e.stopPropagation();
+      openModal('hof-detail',{id:b.dataset.hofDetail,from:'podium'});
+    }));
+  }
+
+  const grid=document.createElement('div');
+  grid.className='hof-grid';
+  grid.innerHTML=list.map(h=>{
+    const rows=(h.lomba||[]).slice().sort((a,b)=>(a.juara||1)-(b.juara||1));
+    const tampil=rows.slice(0,HOF_MAX_SHOW);
+    const lebih=rows.length-tampil.length;
+    return `
+    <div class="hof-card">
+      <div class="hof-card-top">
+        <span class="hof-medal">${HOF_MEDALS[hofBestRank(h)]||'🏅'}</span>
+        <div class="hof-card-name">${esc(h.nama)}</div>
+      </div>
+      <div class="hof-card-nim">${h.nim?esc(h.nim):'—'}</div>
+      ${h.jurusan?`<div class="hof-card-jurusan">${esc(h.jurusan)}</div>`:''}
+      <div class="hof-card-lomba">
+        ${tampil.map(r=>`<div><span class="hof-medal-sm">${HOF_MEDALS[r.juara]||'🏅'}</span> ${esc(r.lomba)}</div>`).join('')}
+        ${lebih>0?`<button class="hof-more" data-hof-detail="${h.id}">＋ Lihat semua (${rows.length})</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  area.appendChild(grid);
+  grid.querySelectorAll('[data-hof-detail]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    openModal('hof-detail',{id:b.dataset.hofDetail,from:'card'});
+  }));
+}
+
+
+/* ── Hall of Fame: daftar entri (modal di halaman Lomba) ── */
+function hofEntries(){ return (db.hallOfFame||[]).filter(h=>!h.deleted); }
+function renderHofList(){
+  const box=document.getElementById('hof-list');
+  const pager=document.getElementById('hof-pager');
+  if(!box) return;
+  const list=hofEntries().sort((a,b)=>(hofBestRank(a)-hofBestRank(b))||((b.createdAt||0)-(a.createdAt||0)));
+  if(!list.length){
+    box.innerHTML='<div style="padding:20px;text-align:center;color:var(--dim);font-size:.76rem">Belum ada entri. Tekan "＋ Tambah Entri".</div>';
+    if(pager) pager.innerHTML='';
+    hofPage=1;
+    return;
+  }
+  const totalPages=Math.max(1,Math.ceil(list.length/HOF_PER_PAGE));
+  if(hofPage>totalPages) hofPage=totalPages;
+  if(hofPage<1) hofPage=1;
+  const start=(hofPage-1)*HOF_PER_PAGE;
+  const pageList=list.slice(start,start+HOF_PER_PAGE);
+
+  box.innerHTML=pageList.map(h=>{
+    const rows=(h.lomba||[]).slice().sort((a,b)=>(a.juara||1)-(b.juara||1));
+    const tampil=rows.slice(0,HOF_MAX_SHOW);
+    const lebih=rows.length-tampil.length;
+    return `
+    <div class="ti-row">
+      <div class="ti-info">
+        <div class="ti-name">${HOF_MEDALS[hofBestRank(h)]||'🏅'} ${esc(h.nama)}</div>
+        <div class="ti-meta">${[h.nim?esc(h.nim):null, h.jurusan?esc(h.jurusan):null, rows.length+' lomba'].filter(Boolean).join(' · ')}</div>
+        <div class="ti-meta2">${tampil.map(r=>HOF_MEDALS[r.juara]+' '+esc(r.lomba)).join(' · ')}</div>
+        ${lebih>0?`<button class="hof-more" data-hof-detail="${h.id}">＋ Lihat semua (${rows.length})</button>`:''}
+      </div>
+      <div class="ti-acts">
+        <button class="lomba-act" data-hof-edit="${h.id}" title="Edit entri">✎</button>
+        <button class="lomba-act del" data-hof-del="${h.id}" title="Hapus entri">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  box.querySelectorAll('[data-hof-detail]').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    openModal('hof-detail',{id:b.dataset.hofDetail,from:'list'});
+  }));
+  box.querySelectorAll('[data-hof-edit]').forEach(b=>b.addEventListener('click',()=>openModal('hof-edit',{id:b.dataset.hofEdit})));
+  box.querySelectorAll('[data-hof-del]').forEach(b=>b.addEventListener('click',()=>{
+    const h=(db.hallOfFame||[]).find(x=>x.id===b.dataset.hofDel);
+    if(!h) return;
+    if(!confirm(`Hapus entri "${h.nama}"?`)) return;
+    touch(Object.assign(h,{deleted:true}));
+    save(); renderHofList();
+    toast('Entri dihapus');
+  }));
+
+  /* navigasi halaman */
+  if(pager){
+    if(totalPages>1){
+      let html='<div class="hof-pager">';
+      html+=`<button class="hof-pg" data-hof-pg="${hofPage-1}"${hofPage<=1?' disabled':''}>‹</button>`;
+      for(let p=1;p<=totalPages;p++){
+        html+=`<button class="hof-pg${p===hofPage?' active':''}" data-hof-pg="${p}">${p}</button>`;
+      }
+      html+=`<button class="hof-pg" data-hof-pg="${hofPage+1}"${hofPage>=totalPages?' disabled':''}>›</button>`;
+      html+=`<span class="hof-pg-info">${start+1}–${Math.min(start+HOF_PER_PAGE,list.length)} dari ${list.length} entri</span>`;
+      html+='</div>';
+      pager.innerHTML=html;
+      pager.querySelectorAll('[data-hof-pg]').forEach(b=>b.addEventListener('click',()=>{
+        const p=+b.dataset.hofPg;
+        if(p<1||p>totalPages) return;
+        hofPage=p;
+        renderHofList();
+      }));
+    } else {
+      pager.innerHTML='';
+    }
+  }
+}
+
+/* ══════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════ */
+document.getElementById('adminBtn').addEventListener('click',()=>{
+  if(isAdmin()){
+    role='viewer';
+    try{ sessionStorage.removeItem(ROLE_KEY); }catch{}
+    applyRole(); render();
+    toast('Keluar dari mode superadmin');
+    return;
+  }
+  const v=prompt('Kode Superadmin');
+  if(v===null) return;
+  if(v.trim()===PASS_ADMIN){
+    role='admin';
+    try{ sessionStorage.setItem(ROLE_KEY,'admin'); }catch{}
+    applyRole(); render();
+    toast('Mode superadmin aktif');
+  } else toast('Kode superadmin salah',true);
+});
+
+(async function init(){
+  try{
+    const stored=sessionStorage.getItem(ROLE_KEY);
+    if(stored==='admin') role='admin';
+    else if(stored==='viewer') role='viewer';
+  }catch{}
+  applyRole();
+  await loadDb();
+  render();
+  const ld=document.getElementById('loading');
+  ld.style.opacity='0';
+  setTimeout(()=>ld.remove(),300);
+  const stored=getStoredRole();
+  if(stored!=='admin'&&stored!=='viewer') document.getElementById('gate').classList.remove('hidden');
+})();
+</script>
+</body>
+</html>
